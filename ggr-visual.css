@@ -1,0 +1,74 @@
+/* CSS declarations go here */
+@import url(//fonts.googleapis.com/css?family=Open+Sans:400,700);
+
+#h1 {
+    margin: 50px 0 20px 0;
+}
+
+#search-box {
+    padding: 10px;
+    width: 600px;
+    border: 1px solid #eee;
+    outline: 0;
+    font-size: 15px;
+}
+
+#search-result {
+    margin: 20px 0 100px 0;
+}
+
+#search-meta {
+    font-size: 13px;
+    color: #666;
+    height: 15px;
+}
+
+.matched_gene {
+    width: 600px;
+    border-bottom: 1px solid #eee;
+    padding: 8px 4px;
+}
+
+.matched_gene {
+    font-weight: 400;
+}
+
+.matched_gene:hover {
+    background: #f0b92e;
+    cursor: pointer;
+}
+
+body, svg {
+    font: 14px 'Open Sans';
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    fill: #000;
+}
+
+.axis .tick line {
+    stroke: rgba(0, 0, 0, 0.1);
+}
+
+.area {
+    stroke-width: 1;
+}
+
+/*.area.outer,*/
+/*.legend .outer {*/
+    /*fill: rgba(230, 230, 255, 0.8);*/
+    /*stroke: rgba(216, 216, 255, 0.8);*/
+/*}*/
+
+
+.legend rect {
+    fill:white;
+    stroke:black;
+    opacity:0.8;}

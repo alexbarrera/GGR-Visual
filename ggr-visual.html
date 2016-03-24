@@ -1,0 +1,54 @@
+<head>
+  <title>ggr-visual</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+
+
+
+  <div class="container-fluid">
+    <h1>GGR Visual</h1>
+    <div class="row">
+    {{> degs_chart}}
+    </div>
+
+    <div class="row">
+      <div class="col-md-4">
+        {{> searchBox}}
+        {{> searchResult}}
+      </div>
+    </div>
+
+
+  </div>
+</body>
+
+<template name="searchBox">
+  <input type="text" id="search-box" placeholder="search gene">
+</template>
+
+<template name="searchResult">
+  <div id='col-md-8 search-result'>
+    <div id="search-meta">
+      {{#if isLoading}}
+        searching ...
+      {{/if}}
+    </div>
+
+    {{#each getGenes}}
+      <div class="matched_gene">
+          {{{gene_name}}}
+      </div>
+    {{/each}}
+  </div>
+</template>
+
+<template name="degs_chart">
+    <div class="col-xs-8 charts_container">
+    </div>
+
+    <div class="col-xs-4">
+      <button type="button" class="displayToggle">Change display</button>
+    </div>
+</template>
