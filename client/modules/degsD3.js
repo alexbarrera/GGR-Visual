@@ -1,39 +1,26 @@
 /**
- * Created by abarrera on 2/29/16.
+ * Created by abarrera on 04/16/16.
  */
 
 DegsD3 = (function(){
 
   var data = [];
+  var svg_charts,
+    axes,
+    legend,
+    svgWidth,
+    svgHeight,
+    margin,
+    chartWidth,
+    chartHeight,
+    timePoints,
+    displayType;
 
-  var BREWER_PALETTE = [
-    [228,26,28],
-    [55,126,184],
-    [77,175,74],
-    [152,78,163],
-    [255,127,0],
-    [166,86,40],
-    [247,129,191],
-    [153,153,153],
-
-    [28,126,128],
-    [155,226,29],
-    [177,275,19],
-    [252,178,8],
-    [55,227,100],
-    [11,186,140],
-    [47,229,36],
-    [253,253,253]
-  ];
-
-  function getColor(colorNumber, palette, hue){
-    colorNumber = colorNumber % 16;
-    return "rgba("+palette[colorNumber].toString()+", "+hue+")";
-  }
 
   function drawPaths(svg, data, x, y, timePoints) {
 
     var stdAreaDrawer = d3.svg.area()
+      .interpolate('basis')
       .x(function (d, i) {
         return x(timePoints[i])
       })
@@ -45,6 +32,7 @@ DegsD3 = (function(){
       });
 
     var medianLineDrawer = d3.svg.line()
+      .interpolate('basis')
       .x(function (d, i) {
         return x(timePoints[i]);
       })
@@ -53,7 +41,7 @@ DegsD3 = (function(){
       });
 
     var stdAreas = svg.selectAll(".stdArea")
-      .data(displayType == 'counts' ? data : [],  function(d, i){
+      .data(displayType == 'counts' ? data : [],  function(d){
         return d.gene_name;
       });
     stdAreas.enter().append('path');
@@ -62,7 +50,7 @@ DegsD3 = (function(){
       .duration(150)
       .ease("linear")
       .attr('fill', function(d, i){
-      return getColor(i, BREWER_PALETTE, .2)
+      return utilsGGR.getColor(i, .2)
     })
       .attr('d', function(d){
         var measure = (displayType == 'counts' ? d.means : d.log2fcs);
@@ -80,7 +68,7 @@ DegsD3 = (function(){
       .attr('data-legend-pos', function(d, i){return i})
       .attr('fill', 'none')
       .attr('stroke', function(d, i){
-        return getColor(i, BREWER_PALETTE, 1)
+        return utilsGGR.getColor(i, 1)
       })
       .attr('stroke-width', 2)
       .transition()
@@ -99,15 +87,15 @@ DegsD3 = (function(){
   }
 
 
-  function init(){
-    svgWidth = 960;
+  function init(container_id){
+    svgWidth = 800;
     svgHeight = 500;
-    margin = {top: 20, right: 20, bottom: 40, left: 60};
+    margin = {top: 20, right: 200, bottom: 40, left: 60};
     chartWidth = svgWidth - margin.left - margin.right;
     chartHeight = svgHeight - margin.top - margin.bottom;
     timePoints = [0, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12];
 
-    svg_charts = d3.select('.charts_container').append('svg')
+    svg_charts = d3.select(container_id).append('svg')
       .attr('width', svgWidth)
       .attr('height', svgHeight)
       .append('g')
@@ -149,7 +137,7 @@ DegsD3 = (function(){
     if (typeof legend == 'undefined') {
       legend = svg_charts.append("g")
         .attr("class", "legend")
-        .attr("transform", "translate(50,30)")
+        .attr("transform", "translate(" + (svgWidth - margin.right - margin.left/2).toString() + ",30)")
         .style("font-size", "12px")
         .call(d3.legend);
     } else {
@@ -178,9 +166,10 @@ DegsD3 = (function(){
       })
   }
 
-  function renderChart() {
+  function renderChart(container_id) {
     if (typeof svg_charts == 'undefined'){
-      init();
+      console.log("init DEGs");
+      init(container_id);
     }
 
 
@@ -217,12 +206,12 @@ DegsD3 = (function(){
     addElement: function(d){
       data = d3.merge([data, d.filter(function(v){return data.map(function(e){return e.gene_name}).indexOf(v.gene_name)<0})]);
     },
-    renderChart: function (){
+    renderChart: function (container_id){
       if (typeof displayType  == 'undefined')
         displayType = 'counts';
-      return renderChart();
+      return renderChart(container_id);
     },
-    toggleDisplayType: function (v){
+    toggleDisplayType: function (){
       if (typeof displayType  == 'undefined' || !displayType)
         displayType = 'counts';
       else

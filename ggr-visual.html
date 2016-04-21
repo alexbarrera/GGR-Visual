@@ -6,25 +6,23 @@
 <body>
 
 
-
   <div class="container-fluid">
     <h1>GGR Visual</h1>
     <div class="row">
-    {{> degs_chart}}
-    </div>
-
-    <div class="row">
       <div class="col-md-4">
+        <h2>Search</h2>
         {{> searchBox}}
         {{> searchResult}}
       </div>
+      <div class="col-md-8 display_col hidden">
+        {{> degs_chart}}
+      </div>
     </div>
-
-
   </div>
 </body>
 
 <template name="searchBox">
+  <label for="search-box">Gene</label>
   <input type="text" id="search-box" placeholder="search gene">
 </template>
 
@@ -32,7 +30,7 @@
   <div id='col-md-8 search-result'>
     <div id="search-meta">
       {{#if isLoading}}
-        searching ...
+        searching GGR database ...
       {{/if}}
     </div>
 
@@ -45,10 +43,13 @@
 </template>
 
 <template name="degs_chart">
-    <div class="col-xs-8 charts_container">
-    </div>
-
-    <div class="col-xs-4">
-      <button type="button" class="displayToggle">Change display</button>
-    </div>
+      <h2>Displays</h2>
+      <button type="button" class="displayToggle">show log2 fold change</button>
+      <div class="row">
+        <div class="degs_container"></div>
+      </div>
+      <div class="row">
+        <h4>Transcripts of: <span id="gene_name_span"></span></h4>
+        <div class="tpms_container"></div>
+      </div>
 </template>

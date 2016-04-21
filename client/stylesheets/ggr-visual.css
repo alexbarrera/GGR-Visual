@@ -2,12 +2,12 @@
 @import url(//fonts.googleapis.com/css?family=Open+Sans:400,700);
 
 #h1 {
-    margin: 50px 0 20px 0;
+    margin: 50px 0 50px 0;
 }
 
 #search-box {
     padding: 10px;
-    width: 600px;
+    /*width: 0px;*/
     border: 1px solid #eee;
     outline: 0;
     font-size: 15px;
@@ -24,7 +24,7 @@
 }
 
 .matched_gene {
-    width: 600px;
+    /*width: 600px;*/
     border-bottom: 1px solid #eee;
     padding: 8px 4px;
 }
@@ -72,3 +72,23 @@ body, svg {
     fill:white;
     stroke:black;
     opacity:0.8;}
+
+button.displayToggle  {
+    background-color: white;
+    color: black;
+    border: 2px solid #4CAF50;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+button.displayToggle:hover {
+    background-color: #4CAF50;
+    color: white;
+}
