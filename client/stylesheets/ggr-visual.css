@@ -1,5 +1,5 @@
 /* CSS declarations go here */
-@import url(//fonts.googleapis.com/css?family=Open+Sans:400,700);
+/*@import url(//fonts.googleapis.com/css?family=Open+Sans:400,700);*/
 
 #h1 {
     margin: 50px 0 50px 0;
@@ -39,7 +39,7 @@
 }
 
 body, svg {
-    font: 14px 'Open Sans';
+    font: 14px 'Helvetica';
 }
 
 .axis path,
