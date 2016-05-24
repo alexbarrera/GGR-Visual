@@ -23,7 +23,7 @@
 
 <template name="searchBox">
   <label for="search-box">Gene</label>
-  <input type="text" id="search-box" placeholder="search gene">
+  <input type="text" id="search-box" placeholder="search gene" autofocus>
 </template>
 
 <template name="searchResult">
@@ -44,12 +44,22 @@
 
 <template name="degs_chart">
       <h2>Displays</h2>
-      <button type="button" class="displayToggle">show log2 fold change</button>
+      <h4>DEGs</h4>
+      <div>
+        <div>
+          <button type="button" class="displayToggle">show log2 fold change</button>
+        </div>
+        <div>
+          <button type="button" class="download-degs">Download</button>
+        </div>
+      </div>
       <div class="row">
         <div class="degs_container"></div>
+
       </div>
       <div class="row">
         <h4>Transcripts of: <span id="gene_name_span"></span></h4>
+          <button type="button" class="download-tpms">Download</button>
         <div class="tpms_container"></div>
       </div>
 </template>

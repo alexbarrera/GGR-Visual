@@ -19,7 +19,7 @@ Template.searchResult.helpers({
   },
 
   isLoading: function() {
-    return DegsSearch.getStatus().loading && TpmsSearch.getStatus().loading;
+    return TpmsSearch.getStatus().loading || DegsSearch.getStatus().loading;
   }
 });
 
@@ -51,5 +51,11 @@ Template.degs_chart.events({
     DegsD3.toggleDisplayType('log2fc');
     var textContent = event.srcElement.textContent;
     event.srcElement.textContent =  textContent == 'show log2 fold change' ? 'show normalized counts' : 'show log2 fold change';
+  },
+  "click .download-degs": function(){
+    downloadSVG('degs_container');
+  },
+  "click .download-tpms": function(){
+    downloadSVG('tpms_container');
   }
 });
