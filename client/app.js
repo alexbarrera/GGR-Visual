@@ -59,3 +59,14 @@ Template.degs_chart.events({
     downloadSVG('tpms_container');
   }
 });
+
+Template.peak_vizs.rendered = function(){
+    TimesliderD3.render(".slider_container");
+    PeakviewerD3.render(".hist_mod_container");
+};
+
+Template.peak_vizs.events({
+  "click .download-hist-mods": function() {
+    downloadSVG('hist_mod_container');
+  }
+});
