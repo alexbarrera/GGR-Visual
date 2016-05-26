@@ -22,6 +22,6 @@ less
 meteorhacks:search-source
 ejson
 check
-d3
 bootstrap
 twbs:bootstrap
+d3js:d3
