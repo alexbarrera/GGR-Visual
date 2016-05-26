@@ -40,6 +40,7 @@ Template.searchResult.events({
 
 Template.searchBox.events({
   "keyup #search-box": _.throttle(function(e) {
+    if (e.keyCode != 13) return;
     var text = $(e.target).val().trim();
     DegsSearch.search(text);
     TpmsSearch.search(text);
