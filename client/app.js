@@ -62,12 +62,26 @@ Template.degs_chart.events({
 });
 
 Template.peak_vizs.rendered = function(){
-    TimesliderD3.render(".slider_container");
-    PeakviewerD3.render(".hist_mod_container");
+  var viewers_sel=$('.peak-viewer');
+  var viewers = [];
+  viewers_sel.each(function(){viewers.push(PeakviewerD3())});
+  viewers.forEach(function(e, i){
+    e.render(viewers_sel[i].getAttribute("class").split(" ").map(function(e){return "."+e}).join(""))
+  });
+  //var hist_mod_viewer = PeakviewerD3().render(".hist_mod_container");
+  //var tf_viewer = PeakviewerD3().render(".tf_container");
+  //var dnase_viewer = PeakviewerD3().render(".dnase_container");
+  TimesliderD3.render(".slider_container", viewers);
 };
 
 Template.peak_vizs.events({
   "click .download-hist-mods": function() {
     downloadSVG('hist_mod_container');
+  },
+  "click .download-tfs": function() {
+    downloadSVG('tf_container');
+  },
+  "click .download-dnases": function() {
+    downloadSVG('dnase_container');
   }
 });
