@@ -7,7 +7,7 @@
 
 #search-box {
     padding: 10px;
-    /*width: 0px;*/
+    width: 95%;
     border: 1px solid #eee;
     outline: 0;
     font-size: 15px;
@@ -54,7 +54,7 @@ body, svg {
 }
 
 .axis .tick line {
-    stroke: rgba(0, 0, 0, 0.1);
+    stroke: rgba(0, 0, 0, 0.2);
 }
 
 .area {
@@ -93,7 +93,7 @@ button.displayToggle:hover {
     color: white;
 }
 
-.hist_mod_container .axis, .slider_container .axis{
+.peak-viewer .axis, .slider_container .axis{
     font: 10px sans-serif;
     -webkit-user-select: none;
     -moz-user-select: none;
