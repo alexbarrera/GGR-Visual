@@ -8,7 +8,7 @@ TimesliderD3 = (function(){
     width = 600 - margin.left - margin.right,
     height = 100 - margin.bottom - margin.top,
     timepoints=[0,0.5,1,2,3,4,5,6,7,8,10,12],
-    last_tp=0;
+    last_tp= 0, viewers;
 
   var q = d3.scale.threshold()
     .domain(
@@ -86,33 +86,24 @@ TimesliderD3 = (function(){
 
       if (last_tp == value) return;
       last_tp = value;
-      //var arrs = [];
-      //for (var ndatum=0; ndatum<2; ndatum++) {
-      //  var arr = [];
-      //  for (var i = 0, t = 21; i < t; i++) {
-      //    arr.push(Math.round(Math.random() * t))
-      //  }
-      //  arrs.push(arr);
-      //}
-      //var data = {
-      //  'coords_dom': [1000000, 3000000],
-      //  'reads_dom': [0, d3.max(arr)],
-      //  'bin_size': 100000,
-      //  'elems': [
-      //    {'name': 'H3K9me1', 'reads': arrs[0]},
-      //    {'name': 'H3K9me3', 'reads': arrs[1]}
-      //  ]
-      //};
 
-      PeakviewerD3.tp(timepoints.indexOf(value));
-      PeakviewerD3.render();
+      viewers.forEach(function(e, i, a){
+        e.tp(timepoints.indexOf(value));
+        e.render();
+      });
+
+      //PeakviewerD3.tp(timepoints.indexOf(value));
+      //PeakviewerD3.render();
 
     }
 
   };
 
   return {
-    render: function(container){return render(container);}
+    render: function(container, vs){
+      viewers=vs;
+      return render(container);
+    }
   }
 }());
 
