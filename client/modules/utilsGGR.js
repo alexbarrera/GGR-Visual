@@ -20,7 +20,8 @@ utilsGGR = (function(){
     return !objToEscape || {
       gene_name: objToEscape.gene.replaceAll("[<b>|</b>]",""),
       means: JSON.parse(objToEscape.tpm_means),
-      sds: JSON.parse(objToEscape.tpm_stds)
+      sds: JSON.parse(objToEscape.tpm_stds),
+      log2fcs: JSON.parse(objToEscape.log2fc_means)
     }
   };
   var tpmToJson = function(objToEscape){

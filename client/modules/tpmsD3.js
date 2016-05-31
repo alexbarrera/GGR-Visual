@@ -27,7 +27,10 @@ TpmsD3 = function(){
         return y(d[0] + d[1])
       })
       .y1(function (d) {
-        return y(d[0] - d[1])
+        var y1=d[0] - d[1];
+        if (displayType == 'counts')
+          y1 = Math.max(0, y1);
+        return y(y1)
       });
 
     var medianLineDrawer = d3.svg.line()
@@ -210,6 +213,13 @@ TpmsD3 = function(){
     },
     renderChart: function (){
       return renderChart();
+    },
+    toggleDisplayType: function (){
+      if (typeof displayType  == 'undefined' || !displayType)
+        displayType = 'counts';
+      else
+        displayType = '';
+      renderChart();
     }
   }
 };
