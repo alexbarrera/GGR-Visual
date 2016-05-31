@@ -92,7 +92,7 @@ TpmsD3 = function(){
   function init(container_id){
     svgWidth = 800;
     svgHeight = 500;
-    margin = {top: 20, right: 300, bottom: 40, left: 60};
+    margin = {top: 20, right: 250, bottom: 40, left: 40};
     chartWidth = svgWidth - margin.left - margin.right;
     chartHeight = svgHeight - margin.top - margin.bottom;
     timePoints = [0, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12];
@@ -177,7 +177,7 @@ TpmsD3 = function(){
             if (displayType != 'counts')
               return d3.min(d.log2fcs);
             else
-              return d3.min(d3.zip(d.means , d.sds).map(function(a){return a[0] - a[1];}));
+              return d3.min(d3.zip(d.means , d.sds).map(function(a){return Math.max(0, a[0] - a[1]);}));
           }),
           d3.max(data, function (d) {
             if (displayType != 'counts')
@@ -210,6 +210,9 @@ TpmsD3 = function(){
     addElement: function(d){
       data = d3.merge([data, d.filter(function(v){return data.map(function(e){return e.gene_name}).indexOf(v.gene_name)<0})]);
       //data = d;
+    },
+    setData: function(d){
+      data = d;
     },
     renderChart: function (){
       return renderChart();

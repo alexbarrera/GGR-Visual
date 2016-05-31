@@ -26,7 +26,7 @@ SearchSource.defineSource('gene_tpms', function(searchText, options) {
 });
 
 SearchSource.defineSource('genes', function(searchText, options) {
-  options = options || {};
+  options = options || {limit:50};
   if(searchText) {
     var regExp = buildRegExp(searchText);
     var selector = {gene: regExp};
