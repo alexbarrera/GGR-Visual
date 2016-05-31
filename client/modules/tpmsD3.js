@@ -2,7 +2,7 @@
  * Created by abarrera on 2/29/16.
  */
 
-TpmsD3 = (function(){
+TpmsD3 = function(){
 
   var data = [];
   var svg_charts,
@@ -89,7 +89,7 @@ TpmsD3 = (function(){
   function init(container_id){
     svgWidth = 800;
     svgHeight = 500;
-    margin = {top: 20, right: 200, bottom: 40, left: 60};
+    margin = {top: 20, right: 300, bottom: 40, left: 60};
     chartWidth = svgWidth - margin.left - margin.right;
     chartHeight = svgHeight - margin.top - margin.bottom;
     timePoints = [0, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12];
@@ -165,13 +165,7 @@ TpmsD3 = (function(){
       })
   }
 
-  function renderChart(container_id) {
-    if (typeof svg_charts == 'undefined'){
-      console.log("init TPMs");
-      init(container_id);
-    }
-
-
+  function renderChart() {
     var x = d3.scale.linear().range([0, chartWidth])
       .domain(d3.extent(timePoints)), //data, function (d) { return d.date; }
       y = d3.scale.linear().range([chartHeight, 0])
@@ -190,8 +184,6 @@ TpmsD3 = (function(){
           })
         ]);
 
-
-
     drawPaths(svg_charts, data, x, y, timePoints);
 
     updateLegend();
@@ -202,15 +194,23 @@ TpmsD3 = (function(){
 
 
   return {
-    addElement: function(d){
-      //data = d3.merge([data, d.filter(function(v){return data.map(function(e){return e.gene_name}).indexOf(v.gene_name)<0})]);
-      data = d;
-    },
-    renderChart: function (container_id){
+    init: function(c){
+      data = [];
       if (typeof displayType  == 'undefined')
         displayType = 'counts';
-      return renderChart(container_id);
+      if (typeof svg_charts == 'undefined'){
+        console.log("init TPMs");
+      init(c);
+      renderChart();
+      }
+    },
+    addElement: function(d){
+      data = d3.merge([data, d.filter(function(v){return data.map(function(e){return e.gene_name}).indexOf(v.gene_name)<0})]);
+      //data = d;
+    },
+    renderChart: function (){
+      return renderChart();
     }
   }
-}());
+};
 

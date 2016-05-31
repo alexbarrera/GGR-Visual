@@ -245,11 +245,18 @@ PeakviewerD3 = function () {
           arrs.push(tp_data)
         }
         data = {
-          'coords_dom': [1000000, 3000000],
+          'coords_dom': [100000, 300000],
           'reads_dom': [0, d3.max(arrs.map(function(e){return d3.max(e)}).map(function(e){return d3.max(e)}))],
-          'bin_size': 100000,
+          'bin_size': 10000,
           'tp': 0,
-          'elems': viewers_types[c].names.map(function(e,i){return {'name': e, 'reads': arrs[i]}})
+          'elems': viewers_types[c].names.map(function(e,i){
+            return {
+              'name': e,
+              'reads': arrs[i].map(function(ee){
+                return ee.map(function(eee){return eee>18?eee:0})
+              })
+            }
+          })
           //'elems': [
           //  {'name': 'H3K9me3', 'reads': arrs[0]},
           //  {'name': 'H3K9me1', 'reads': arrs[1]}

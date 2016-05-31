@@ -16,6 +16,13 @@ utilsGGR = (function(){
       log2fcs: JSON.parse(objToEscape.log2fcs)
     }
   };
+  var geneToJson = function(objToEscape){
+    return !objToEscape || {
+      gene_name: objToEscape.gene.replaceAll("[<b>|</b>]",""),
+      means: JSON.parse(objToEscape.tpm_means),
+      sds: JSON.parse(objToEscape.tpm_stds)
+    }
+  };
   var tpmToJson = function(objToEscape){
     return !objToEscape || {
       gene_name: objToEscape.transcript.replaceAll("[<b>|</b>]",""),
@@ -50,6 +57,9 @@ utilsGGR = (function(){
     },
     tpmToJson : function(o){
       return tpmToJson(o);
+    },
+    geneToJson : function(o){
+      return geneToJson(o);
     },
     getColor: function(c, h){
       return getColor(c, h);
