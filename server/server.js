@@ -1,17 +1,6 @@
 /**
  * Created by abarrera on 3/24/16.
  */
-//SearchSource.defineSource('gene_degs', function(searchText, options) {
-//  options = options || {limit: 20}; //sort: {gene_name: 1}, limit: 20};
-//  if(searchText) {
-//    var regExp = buildRegExp(searchText);
-//    var selector = {gene_name: regExp};
-//    return Dges.find(selector, options).fetch();
-//  }
-//  else {
-//    return []; //Dges.find({}, options).fetch();
-//  }
-//});
 
 SearchSource.defineSource('gene_tpms', function(searchText, options) {
   options = options || {};
@@ -26,11 +15,23 @@ SearchSource.defineSource('gene_tpms', function(searchText, options) {
 });
 
 SearchSource.defineSource('genes', function(searchText, options) {
-  options = options || {limit:50};
+  options = options || {limit:20};
   if(searchText) {
     var regExp = buildRegExp(searchText);
     var selector = {gene: regExp};
     return Genes.find(selector, options).fetch();
+  }
+  else {
+    return [];
+  }
+});
+
+SearchSource.defineSource('exons', function(searchText, options) {
+  options = options || {};
+  if(searchText) {
+    var regExp = buildRegExp(searchText);
+    var selector = {gene: regExp};
+    return Exons.find(selector, options).fetch();
   }
   else {
     return [];
