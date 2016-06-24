@@ -8,14 +8,6 @@ utilsGGR = (function(){
     return target.replace(new RegExp(search, 'g'), replacement);
   };
 
-  var degToJson = function(objToEscape){
-    return !objToEscape || {
-      gene_name: objToEscape.gene_name.replaceAll("[<b>|</b>]",""),
-      means: JSON.parse(objToEscape.means),
-      sds: JSON.parse(objToEscape.sds),
-      log2fcs: JSON.parse(objToEscape.log2fcs)
-    }
-  };
   var geneToJson = function(objToEscape){
     return !objToEscape || {
       gene_name: objToEscape.gene.replaceAll("[<b>|</b>]",""),
@@ -32,6 +24,9 @@ utilsGGR = (function(){
       means: JSON.parse(objToEscape.tpm_means),
       sds: JSON.parse(objToEscape.tpm_stds)
     }
+  };
+  var exonToJson = function(objToEscape){
+    return !objToEscape || function(){objToEscape.exons = JSON.parse(objToEscape.exons); return objToEscape}()
   };
 
   function getColor(colorNumber, hue){
@@ -53,14 +48,14 @@ utilsGGR = (function(){
   }
 
   return {
-    degToJson: function(o){
-      return degToJson(o);
-    },
     tpmToJson : function(o){
       return tpmToJson(o);
     },
     geneToJson : function(o){
       return geneToJson(o);
+    },
+    exonToJson : function(o){
+      return exonToJson(o);
     },
     getColor: function(c, h){
       return getColor(c, h);
