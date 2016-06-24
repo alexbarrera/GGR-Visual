@@ -34,17 +34,17 @@
         .attr("x","1em")
         .text(function(d) { return d.key;});
 
-      var lines = li.selectAll("line")
-        .data(items, function(d) { return d.key});
-      lines.enter()
-        .append("line")
+      li.selectAll("line")
+        .data(items, function(d) { return d.key})
+        .call(function(d) {d.enter().append("line")})
+        .call(function(d){d.exit().remove()})
         .attr("y1",function(d,i) { return i-0.25+"em"})
         .attr("x1",0)
         .attr("y2",function(d,i) { return i-0.25+"em"})
         .attr("x2",10)
         .style("stroke-width", 4)
         .style("stroke",function(d) { return d.value.color});
-      lines.exit().remove();
+
 
       // Reposition and resize the box
       var lbbox = li[0][0].getBBox();
