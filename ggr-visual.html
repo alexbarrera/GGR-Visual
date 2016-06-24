@@ -6,32 +6,46 @@
 
 <body>
   <div class="container-fluid">
-    <h1>GGR Visual</h1>
-    <div class="row">
-      <div class="col-md-4">
-        <h2>Search</h2>
-        <h5>e.g.: BCL3,NR1D2,CRY2,ARNTL,MAFK,PER1,IL11</h5>
-        {{> searchBox}}
-        {{> searchResult}}
+    <div class="row-fluid">
+      <div class="span12">
+        <h1>GGR Visual</h1>
       </div>
-      <div class="col-md-8 display_col hidden">
+    </div>
+    <div class="row-fluid">
+      <div class="span4">
+          <h2>Genes</h2>
+          <h6>e.g.: BCL3,NR1D2,CRY2,ARNTL,MAFK,PER1,IL11</h6>
+          {{> searchBox}}
+          {{> searchResult}}
+          {{> genesSelected }}
+      </div>
+      <div class="span8 display_col hidden">
         {{> genes_chart}}
-      <!--</div>-->
-      <!--<div class="col-md-4"></div>-->
-      <!--<div class="col-md-8 display_col">-->
         {{> peak_vizs}}
       </div>
     </div>
   </div>
 </body>
 
+<template name="genesSelected">
+  <div class="selected_genes hidden">
+    <h3>Selected genes</h3>
+  {{#each selectedGenes}}
+    <div class="selected_gene">
+      <span class="selected_gene_name">{{{gene}}}</span>
+      <i class="fa fa-remove pull-right text-danger delete-gene"></i>
+    </div>
+  {{/each}}
+    </div>
+</template>
+
 <template name="searchBox">
-  <label for="search-box">Gene(s)</label>
+  <label id="label-search" for="search-box">Search:</label>
   <input type="text" id="search-box" placeholder="search gene" autofocus>
 </template>
 
 <template name="searchResult">
-  <div id='col-md-8 search-result'>
+  <div id='search-result'>
     <div id="search-meta">
       {{#if isLoading}}
         searching GGR database ...
@@ -39,7 +53,7 @@
     </div>
 
     {{#each getGenes}}
-      <div class="matched_gene">
+      <div class="matched_gene" title="Click to add">
           {{{gene}}}
       </div>
     {{/each}}
@@ -57,11 +71,11 @@
           <button type="button" class="download-degs">Download</button>
         </div>
       </div>
-      <div class="row">
+      <div>
         <div class="genes_container"></div>
 
       </div>
-      <div class="row">
+      <div>
         <h4>Transcripts of: <span id="gene_name_span"></span></h4>
           <button type="button" class="download-tpms">Download</button>
         <div class="tpms_container"></div>
@@ -69,10 +83,22 @@
 </template>
 
 <template name="peak_vizs">
-  <div class="row">
+  <!--<div class="row-fluid">-->
     <h2>ChIPs [WIP]</h2>
     <h4>Time of 100 nM DEX treatment (hs)</h4>
     <div class="slider_container"></div>
+
+    <div>
+    <label for="resolution">Resolution</label>
+    <select id="resolution">
+      <option value="5" selected>5 bp</option>
+      <option value="10">10 bp</option>
+      <option value="25">25 bp</option>
+      <option value="50">50 bp</option>
+      <option value="100">100 bp</option>
+      <option value="1000">1000 bp</option>
+    </select>
+    </div>
     <h4>Histone Mods.</h4>
     <button type="button" class="download-hist-mods">Download</button>
     <div class="hist_mod_container peak-viewer"></div>
@@ -85,5 +111,5 @@
     <button type="button" class="download-dnases">Download</button>
     <div class="dnase_container peak-viewer"></div>
 
-  </div>
+  <!--</div>-->
 </template>
