@@ -92,7 +92,7 @@ TpmsD3 = function(){
   function init(container_id){
     svgWidth = 800;
     svgHeight = 500;
-    margin = {top: 20, right: 250, bottom: 40, left: 40};
+    margin = {top: 20, right: 250, bottom: 40, left: 60};
     chartWidth = svgWidth - margin.left - margin.right;
     chartHeight = svgHeight - margin.top - margin.bottom;
     timePoints = [0, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12];
@@ -210,6 +210,9 @@ TpmsD3 = function(){
     addElement: function(d){
       data = d3.merge([data, d.filter(function(v){return data.map(function(e){return e.gene_name}).indexOf(v.gene_name)<0})]);
       //data = d;
+    },
+    removeElement: function(e){
+      data.splice(data.map(function(g){return g.gene_name}).indexOf(e.gene_name), 1);
     },
     setData: function(d){
       data = d;
