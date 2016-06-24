@@ -87,7 +87,7 @@ TimesliderD3 = (function(){
       if (last_tp == value) return;
       last_tp = value;
 
-      viewers.forEach(function(e, i, a){
+      peak_viewers.forEach(function(e, i, a){
         e.tp(timepoints.indexOf(value));
         e.render();
       });
@@ -101,7 +101,7 @@ TimesliderD3 = (function(){
 
   return {
     render: function(container, vs){
-      viewers=vs;
+      peak_viewers=vs;
       return render(container);
     }
   }
