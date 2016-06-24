@@ -23,18 +23,27 @@
     height: 15px;
 }
 
-.matched_gene {
+.matched_gene, .selected_gene {
     /*width: 600px;*/
     border-bottom: 1px solid #eee;
     padding: 8px 4px;
-}
-
-.matched_gene {
     font-weight: 400;
 }
 
 .matched_gene:hover {
     background: #f0b92e;
+    cursor: pointer;
+}
+
+.selected_gene:hover {
+    background: #f0b92e;
+}
+
+span.selected_gene_name{
+    cursor: pointer;
+}
+
+i.delete-gene{
     cursor: pointer;
 }
 
@@ -129,3 +138,22 @@ button.displayToggle:hover {
     stroke-width: 3px;
     stroke-linejoin: round;
 }
+
+.exon{
+    fill: grey;
+    fill-opacity: .3;
+    stroke: black;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    alpha: 9;
+    shape-rendering: crispEdges;
+    stroke-width: 2px;
+}
+
+.intron {
+    stroke: black;
+    stroke-width: 1px;
+    stroke-dashoffset: .8;
+    stroke-dasharray: ("6, 6");
+}
+
