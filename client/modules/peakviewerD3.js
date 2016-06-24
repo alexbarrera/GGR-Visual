@@ -18,7 +18,8 @@ PeakviewerD3 = function () {
     });
   };
 
-  var margin,
+  var container,
+    margin,
     width,
     height,
     data,
@@ -27,10 +28,12 @@ PeakviewerD3 = function () {
     legend,
     svgWidth,
     svgHeight,
-    defs;
+    defs,
+    nbins_viewer=40;
 
 
   function init(c) {
+    container = c;
     svgWidth = 700;
     svgHeight = 250;
     margin = {top: 20, right: 140, bottom: 20, left: 50};
@@ -47,7 +50,7 @@ PeakviewerD3 = function () {
 
     // clipping to make sure nothing appears behind legend
     svgCanvas.append('clipPath')
-      .attr('id', 'axes-clip')
+      .attr('id', 'axes-clip' + c)
       .append('polygon')
       .attr('points', (-margin.left) + ',' + (-margin.top) + ' ' +
         (width - 1) + ',' + (-margin.top) + ' ' +
@@ -57,7 +60,7 @@ PeakviewerD3 = function () {
         (-margin.left) + ',' + (height + margin.bottom));
 
     axes = svgCanvas.append('g')
-      .attr('clip-path', 'url(#axes-clip)');
+      .attr('clip-path', 'url(#axes-clip' + c + ')');
     axes.append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(0," + height + ")");
@@ -70,18 +73,11 @@ PeakviewerD3 = function () {
       .attr('dy', '.71em')
       .style('text-anchor', 'end')
       .text("Num. of reads");
-    // Draw TSS
-    var tss_static_vals = [
-      [[width / 2, height],
-        [width / 2, margin.top + height / 4],
-        [width / 2 + width / 10, margin.top + height / 4]]
-    ];
 
     defs = svgCanvas.append("defs");
-
     defs.append("marker")
       .attr({
-        "id": "arrow",
+        "id": "arrow"+c,
         "viewBox": "0 -5 10 10",
         "refX": 5,
         "refY": 0,
@@ -90,26 +86,9 @@ PeakviewerD3 = function () {
         "orient": "auto"
       })
       .append("path")
-      .attr("d", "M0,-10L10,0L0,10")
+      .attr("d", "M0,-10L10,0L0,10Z")
       .attr("class", "arrowHead");
 
-    var tss = svgCanvas.selectAll(".tss")
-      .data(tss_static_vals)
-      .enter().append("g")
-      .attr("class", "tss");
-
-    tss.append("path")
-      .attr("class", "line")
-      .attr("class", "arrow")
-      .attr("marker-end", "url(#arrow)")
-      .attr("d", d3.svg.line()
-        .x(function (d) {
-          return d[0];
-        })
-        .y(function (d) {
-          return d[1];
-        })
-      );
 
   }
 
@@ -131,10 +110,12 @@ PeakviewerD3 = function () {
 
   function renderPeakAreas(x, y) {
 
+    var bin_size_viewer=(Math.abs(data.coords_dom[1]-data.coords_dom[0])/data.resolution)/nbins_viewer;
+
     var areaDrawer = d3.svg.area()
       .interpolate('basis')
       .x(function (d, i) {
-        return x(data.coords_dom[0] + data.bin_size * i)
+        return x(data.coords_dom[0] + data.bin_size * (i +.5))
       })
       .y0(function (d) {
         return y(data.reads_dom[0])
@@ -143,14 +124,6 @@ PeakviewerD3 = function () {
         return y(d)
       });
 
-    //var medianLineDrawer = d3.svg.line()
-    //  .interpolate('basis')
-    //  .x(function (d, i) {
-    //    return x(timePoints[i]);
-    //  })
-    //  .y(function (d) {
-    //    return y(d);
-    //  });
 
     var readsAreas = svgCanvas.selectAll(".readsArea")
       .data(data.elems, function (d) {
@@ -167,9 +140,14 @@ PeakviewerD3 = function () {
       .duration(150)
       .ease("linear")
       .attr('d', function (d) {
-        return areaDrawer(d.reads[data.tp]);
+        return areaDrawer(
+          d3.range(nbins_viewer)
+            .map(function(e){
+              return d3.mean(d.reads[data.tp].slice(e*bin_size_viewer, (e+1)*bin_size_viewer))
+            })
+          );
       })
-      .attr('clip-path', 'url(#rect-clip)')
+      //.attr('clip-path', 'url(#rect-clip)')
 
     ;
     readsAreas.exit().remove();
@@ -187,9 +165,96 @@ PeakviewerD3 = function () {
     }
   }
 
+  var tss_line_gen = d3.svg.line()
+      .x(function (d) {
+        return d[0];
+      })
+      .y(function (d) {
+        return d[1];
+      });
+
+  function updateTss(){
+    // Draw TSS
+    var tss_static_vals;
+    if (!data.strand || data.strand == "+"){
+      tss_static_vals = [{
+        'strand': 'Plus',
+        'values': [[width / 2, height],
+          [width / 2, margin.top + 3 * height / 4],
+          [width / 2 + width / 20, margin.top + 3 * height / 4]]
+      }];
+    } else
+      tss_static_vals = [{
+        'strand': 'Minus',
+        'values': [[width / 2, height],
+          [width / 2, margin.top + 3 * height / 4],
+          [width / 2 - width / 20, margin.top + 3 * height / 4]]
+      }];
+
+
+    var tss = svgCanvas.selectAll(".tss")
+      .data(tss_static_vals, function(d){return d.strand});
+
+    tss.enter().append("g");
+    var tss_line = tss.attr("class", "tss")
+      .append("path");
+    tss_line
+      .attr("class", "line")
+      .attr("class", "arrow")
+      .attr("marker-end", function(){
+        return "url(#arrow" +container + ")"
+      })
+      .attr("d", function(dd){
+        return tss_line_gen(dd.values)
+        }
+      );
+    tss.exit().remove();
+  }
+
+  function renderIntronsExons(x, y) {
+    var exons = svgCanvas.selectAll("rect.exon")
+      .data(data.exons);
+    exons.enter().append("rect");
+    exons.attr("class", "exon")
+      .attr("x", function (d) {
+        return x(d[0])
+      })
+      .attr("y", function() {
+        return margin.top+height*4/5;
+      })
+      .attr("width", function(d){
+        return Math.abs(x(d[1]) - x(d[0]))
+      })
+      .attr("height", function(){
+        return height-margin.bottom - height*4/5;
+      });
+    exons.exit().remove();
+
+    var introns = svgCanvas.selectAll("line.intron")
+      .data(data.exons.slice(0, data.exons.length-1).map(function(e, i) {
+          return [e[1], data.exons[i+1][0]];
+        })
+      );
+    introns.enter().append("line")
+      .style("stroke-dasharray", ("4, 3"));
+    introns.attr("class", "intron")
+      .attr("x1", function (d) {
+        return x(d[0])
+      })
+      .attr("y1", function() {
+        return margin.top+height*17/20;
+      })
+      .attr("x2", function (d) {
+        return x(d[1])
+      })
+      .attr("y2", function() {
+        return margin.top+height*17/20;
+      });
+    introns.exit().remove();
+  }
+
   function render(c) {
     if (typeof svgCanvas == 'undefined') {
-      //console.log("init Peakviewer");
       init(c);
     }
     var x = d3.scale.linear()
@@ -203,7 +268,10 @@ PeakviewerD3 = function () {
     renderPeakAreas(x, y);
     renderAxis(x, y);
     updateLegend();
+    updateTss();
     svgCanvas.select('.tss').moveToFront();
+    renderIntronsExons(x, y);
+    svgCanvas.selectAll('.exon').moveToFront();
 
     return this;
   }
@@ -216,7 +284,31 @@ PeakviewerD3 = function () {
     data: function (d) {
       return (d ? data = d : data)
     },
+    exons: function(ee){
+      return ((typeof ee != undefined) && data ? data.exons = ee : data.exons)
+    },
+    coords_domain: function(cc){
+      return ((typeof cc != undefined) && data ? data.coords_dom = cc : data.coords_dom)
+    },
+    strand: function(s){
+      return ((typeof s != undefined) && data ? data.strand = s : data.strand)
+    },
+    resolution: function(r){
+      if (typeof data =='undefined') return r;
+      if (r){
+        data.resolution = r;
+      }
+      return data.resolution;
+    },
+
     render: function (c) {
+      var range_window = [100000, 300000],
+        resolution= 5,
+        nbins = Math.abs(range_window[1]-range_window[0])/resolution,
+        tps=12,
+        bin_size = Math.abs(range_window[1]-range_window[0])/nbins_viewer,
+        bin_size_viewer=nbins/nbins_viewer;
+
       if (!data) {
         var viewers_types  = {
           ".hist_mod_container.peak-viewer": {
@@ -235,26 +327,40 @@ PeakviewerD3 = function () {
         var arrs = [];
         for (var ndatum = 0; ndatum < viewers_types[c].n; ndatum++) {
           var tp_data = [];
-          for (var tp = 0; tp < 12; tp++) {
+          for (var tp = 0; tp < tps; tp++) {
             var arr = [];
-            for (var i = 0, t = 21; i < t; i++) {
-              arr.push(Math.round(Math.random() * t))
+            for (var i = 0; i < nbins; i++) {
+              arr.push(Math.round(Math.random() * nbins))
             }
             tp_data.push(arr);
+            //tp_data.push(
+            //  d3.range(nbins_viewer)
+            //    .map(function(e){
+            //      return d3.mean(arr.slice(e*bin_size_viewer, (e+1)*bin_size_viewer))
+            //    })
+            //);
           }
           arrs.push(tp_data)
         }
         data = {
-          'coords_dom': [100000, 300000],
+          'coords_dom': range_window,
           'reads_dom': [0, d3.max(arrs.map(function(e){return d3.max(e)}).map(function(e){return d3.max(e)}))],
-          'bin_size': 10000,
+          'bin_size': bin_size,
           'tp': 0,
+          'resolution': resolution,
+          'exons': [
+            [200010, 200280],
+            [250010, 250180],
+            [271010, 271190],
+            [295000, 295100]
+          ],
           'elems': viewers_types[c].names.map(function(e,i){
             return {
               'name': e,
-              'reads': arrs[i].map(function(ee){
-                return ee.map(function(eee){return eee>18?eee:0})
-              })
+              'reads': arrs[i]
+              //'reads': arrs[i].map(function(ee){
+              //  return ee.map(function(eee){return eee})
+              //})
             }
           })
           //'elems': [
