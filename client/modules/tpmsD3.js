@@ -58,7 +58,7 @@ TpmsD3 = function(){
         var measure = (displayType == 'counts' ? d.means : d.log2fcs);
         return stdAreaDrawer(measure.map(function(c, i){return [c, d.sds[i]];}));
       })
-      .attr('clip-path', 'url(#rect-clip)')
+      .attr('clip-path', 'url(#axes-clip)')
     ;
     stdAreas.exit().remove();
 
@@ -80,7 +80,7 @@ TpmsD3 = function(){
         var measure = (displayType == 'counts' ? d.means : d.log2fcs);
         return medianLineDrawer(measure)
       })
-      .attr('clip-path', 'url(#rect-clip)')
+      .attr('clip-path', 'url(#axes-clip)')
 
 
     ;
@@ -202,9 +202,8 @@ TpmsD3 = function(){
       if (typeof displayType  == 'undefined')
         displayType = 'counts';
       if (typeof svg_charts == 'undefined'){
-        console.log("init TPMs");
-      init(c);
-      renderChart();
+        init(c);
+        renderChart();
       }
     },
     addElement: function(d){

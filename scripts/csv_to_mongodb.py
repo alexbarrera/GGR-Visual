@@ -9,7 +9,7 @@ def main():
     parser.add_argument('datafile', default=None, help='Data file to import')
     parser.add_argument('--clienturi', default=None, help='Host to connect')
     parser.add_argument('--delimiter', default="\t", help='Delimiter used in datafile')
-    parser.add_argument('--noheaderline', action='store_false', \
+    parser.add_argument('--noheaderline', action='store_true', \
                         default=False, help='Header line used in datafile')
     parser.add_argument('--headers', nargs='+', required=False, help='Headers used in datafile')
     parser.add_argument('--dropcollection', action='store_true', help='Drop collection from database before inserting')

@@ -47,6 +47,19 @@ utilsGGR = (function(){
     return "rgba("+colorRGB.toString()+", "+hue+")";
   }
 
+  function decompress_array(a){
+    /**
+     * Compress array represented by paired values: (times, number).
+     *  e.g.: [1,0,2,4,5,100] ==> [0,4,4,100,100,100,100,100]
+     * **/
+    var out = [];
+    for (var i=1; i<a.length; i=i+2){
+      for (var j=0; j<a[i-1]; j++){
+        out.push(a[i]);
+      }
+    }
+    return out;
+  }
   return {
     tpmToJson : function(o){
       return tpmToJson(o);
@@ -59,6 +72,9 @@ utilsGGR = (function(){
     },
     getColor: function(c, h){
       return getColor(c, h);
+    },
+    decompress_array: function(a){
+      return decompress_array(a);
     }
   }
 })();

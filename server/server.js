@@ -38,8 +38,73 @@ SearchSource.defineSource('exons', function(searchText, options) {
   }
 });
 
+SearchSource.defineSource('H3K4me1', function(searchText, options) {
+  options = options || {};
+  if(searchText) {
+    var selector = {gene_id: searchText};
+    return HistoneMods['H3K4me1'].find(selector, options).fetch();
+  }
+  else {
+    return [];
+  }
+});
+
+SearchSource.defineSource('H3K4me2', function(searchText, options) {
+  options = options || {};
+  if(searchText) {
+    var selector = {gene_id: searchText};
+    return HistoneMods['H3K4me2'].find(selector, options).fetch();
+  }
+  else {
+    return [];
+  }
+});
+
+SearchSource.defineSource('H3K4me3', function(searchText, options) {
+  options = options || {};
+  if(searchText) {
+    var selector = {gene_id: searchText};
+    return HistoneMods['H3K4me3'].find(selector, options).fetch();
+  }
+  else {
+    return [];
+  }
+});
+
+SearchSource.defineSource('H3K9me3', function(searchText, options) {
+  options = options || {};
+  if(searchText) {
+    var selector = {gene_id: searchText};
+    return HistoneMods['H3K9me3'].find(selector, options).fetch();
+  }
+  else {
+    return [];
+  }
+});
+
+SearchSource.defineSource('H3K27ac', function(searchText, options) {
+  options = options || {};
+  if(searchText) {
+    var selector = {gene_id: searchText};
+    return HistoneMods['H3K27ac'].find(selector, options).fetch();
+  }
+  else {
+    return [];
+  }
+});
+
+SearchSource.defineSource('GR', function(searchText, options) {
+  options = options || {};
+  if(searchText) {
+    var selector = {gene_id: searchText};
+    return Tfs['GR'].find(selector, options).fetch();
+  }
+  else {
+    return [];
+  }
+});
+
 function buildRegExp(searchText) {
-  // this is a dumb implementation
   var parts = searchText.trim().split(/[ :,]+/);
   return new RegExp("(" + parts.join('|') + ")", "ig");
 }

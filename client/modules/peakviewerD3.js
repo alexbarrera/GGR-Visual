@@ -29,11 +29,13 @@ PeakviewerD3 = function () {
     svgWidth,
     svgHeight,
     defs,
-    nbins_viewer=40;
+    tss_coord,
+    nbins_viewer=2000,
+    resolutions_set=[5,25,100];
 
 
   function init(c) {
-    container = c;
+    container = c || container;
     svgWidth = 700;
     svgHeight = 250;
     margin = {top: 20, right: 140, bottom: 20, left: 50};
@@ -42,15 +44,14 @@ PeakviewerD3 = function () {
 
     //c=".hist_mod_container";
 
-    svgCanvas = d3.select(c).append("svg")
+    svgCanvas = d3.select(container).append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    // clipping to make sure nothing appears behind legend
     svgCanvas.append('clipPath')
-      .attr('id', 'axes-clip' + c)
+      .attr('id', 'axes-clip' + container)
       .append('polygon')
       .attr('points', (-margin.left) + ',' + (-margin.top) + ' ' +
         (width - 1) + ',' + (-margin.top) + ' ' +
@@ -59,8 +60,16 @@ PeakviewerD3 = function () {
         (width + margin.right) + ',' + (height + margin.bottom) + ' ' +
         (-margin.left) + ',' + (height + margin.bottom));
 
+    svgCanvas.append('clipPath')
+      .attr('id', 'viewer-clip' + container)
+      .append('polygon')
+      .attr('points', '0,0 ' +
+        width + ',0 ' +
+        width + ',' + (height) + ' ' +
+        '0,' + height);
+
     axes = svgCanvas.append('g')
-      .attr('clip-path', 'url(#axes-clip' + c + ')');
+      .attr('clip-path', 'url(#axes-clip' + container + ')');
     axes.append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(0," + height + ")");
@@ -77,7 +86,7 @@ PeakviewerD3 = function () {
     defs = svgCanvas.append("defs");
     defs.append("marker")
       .attr({
-        "id": "arrow"+c,
+        "id": "arrow"+container,
         "viewBox": "0 -5 10 10",
         "refX": 5,
         "refY": 0,
@@ -97,8 +106,12 @@ PeakviewerD3 = function () {
     var xAxis = d3.svg.axis()
       .scale(x)
       .orient("bottom")
-      .ticks(5),
-      yAxis = d3.svg.axis().scale(y).orient('left').tickPadding(5);
+      .ticks(6),
+      yAxis = d3.svg.axis()
+        .scale(y)
+        .orient('left')
+        .ticks(8)
+        .tickPadding(5);
 
     axes.selectAll(".x.axis")
       .call(xAxis);
@@ -110,12 +123,12 @@ PeakviewerD3 = function () {
 
   function renderPeakAreas(x, y) {
 
-    var bin_size_viewer=(Math.abs(data.coords_dom[1]-data.coords_dom[0])/data.resolution)/nbins_viewer;
+    //var bin_size_viewer=(Math.abs(data.coords_dom[1]-data.coords_dom[0])/data.resolution)/nbins_viewer;
 
     var areaDrawer = d3.svg.area()
       .interpolate('basis')
       .x(function (d, i) {
-        return x(data.coords_dom[0] + data.bin_size * (i +.5))
+        return x(data.coords_dom[0] + data.resolution * (i +.5))
       })
       .y0(function (d) {
         return y(data.reads_dom[0])
@@ -137,14 +150,12 @@ PeakviewerD3 = function () {
       .attr('data-legend', function(d){return d.name;})
       .attr('data-legend-pos', function(d, i){return i})
       .transition()
-      .duration(150)
-      .ease("linear")
+      .duration(500)
+      .ease("cubic")
       .attr('d', function (d) {
+        //return areaDrawer(d.reads[data.tp]);
         return areaDrawer(
-          d3.range(nbins_viewer)
-            .map(function(e){
-              return d3.mean(d.reads[data.tp].slice(e*bin_size_viewer, (e+1)*bin_size_viewer))
-            })
+          d.reads[data.tp][resolutions_set.indexOf(data.resolution)]
           );
       })
       //.attr('clip-path', 'url(#rect-clip)')
@@ -227,7 +238,8 @@ PeakviewerD3 = function () {
       })
       .attr("height", function(){
         return height-margin.bottom - height*4/5;
-      });
+      })
+      .attr('clip-path', 'url(#viewer-clip' + container +')');
     exons.exit().remove();
 
     var introns = svgCanvas.selectAll("line.intron")
@@ -249,7 +261,8 @@ PeakviewerD3 = function () {
       })
       .attr("y2", function() {
         return margin.top+height*17/20;
-      });
+      })
+      .attr('clip-path', 'url(#viewer-clip' + container +')');
     introns.exit().remove();
   }
 
@@ -265,6 +278,7 @@ PeakviewerD3 = function () {
       .domain(data.reads_dom)
       .range([height, 0]);
 
+    //console.log(Date.now());
     renderPeakAreas(x, y);
     renderAxis(x, y);
     updateLegend();
@@ -272,28 +286,38 @@ PeakviewerD3 = function () {
     svgCanvas.select('.tss').moveToFront();
     renderIntronsExons(x, y);
     svgCanvas.selectAll('.exon').moveToFront();
-
+    //console.log(Date.now());
     return this;
   }
 
   return {
 
     tp: function (d) {
-      return ((typeof d != undefined) && data ? data.tp = d : data.tp)
+      return ((typeof d != 'undefined') && data ? data.tp = d : data.tp)
     },
     data: function (d) {
       return (d ? data = d : data)
     },
     exons: function(ee){
-      return ((typeof ee != undefined) && data ? data.exons = ee : data.exons)
+      return ((typeof ee != 'undefined') && data ? data.exons = ee : data.exons)
     },
     coords_domain: function(cc){
-      return ((typeof cc != undefined) && data ? data.coords_dom = cc : data.coords_dom)
+      return ((typeof cc != 'undefined') && data ? data.coords_dom = cc : data.coords_dom)
+    },
+    container: function(c){
+      return ((typeof c != 'undefined') ? container = c : container)
     },
     strand: function(s){
-      return ((typeof s != undefined) && data ? data.strand = s : data.strand)
+      return ((typeof s != 'undefined') && data ? data.strand = s : data.strand)
+    },
+    tss: function(t){
+      return ((typeof t != 'undefined') ? tss_coord = t : tss_coord)
+    },
+    resolutions_set: function(rs){
+      return ((typeof rs != 'undefined') ? resolutions_set = rs : resolutions_set)
     },
     resolution: function(r){
+      //Changing the resolution affects the window range visualized
       if (typeof data =='undefined') return r;
       if (r){
         data.resolution = r;
@@ -302,73 +326,73 @@ PeakviewerD3 = function () {
     },
 
     render: function (c) {
-      var range_window = [100000, 300000],
-        resolution= 5,
-        nbins = Math.abs(range_window[1]-range_window[0])/resolution,
-        tps=12,
-        bin_size = Math.abs(range_window[1]-range_window[0])/nbins_viewer,
-        bin_size_viewer=nbins/nbins_viewer;
+      //var range_window = [100000, 300000],
+      //  resolution= 5,
+      //  nbins = Math.abs(range_window[1]-range_window[0])/resolution,
+      //  tps=12,
+      //  bin_size = Math.abs(range_window[1]-range_window[0])/nbins_viewer,
+      //  bin_size_viewer=nbins/nbins_viewer;
 
-      if (!data) {
-        var viewers_types  = {
-          ".hist_mod_container.peak-viewer": {
-            'n':2,
-            'names': ['H3K9me1', 'H3K9me3']
-          },
-          ".tf_container.peak-viewer": {
-            'n':5,
-            'names': ['CTCF', 'BCL3', 'CEBPB', 'EP300', 'FOSL2']
-          },
-          ".dnase_container.peak-viewer": {
-            'n':1,
-            'names': ['DNase-I']
-          }
-        };
-        var arrs = [];
-        for (var ndatum = 0; ndatum < viewers_types[c].n; ndatum++) {
-          var tp_data = [];
-          for (var tp = 0; tp < tps; tp++) {
-            var arr = [];
-            for (var i = 0; i < nbins; i++) {
-              arr.push(Math.round(Math.random() * nbins))
-            }
-            tp_data.push(arr);
-            //tp_data.push(
-            //  d3.range(nbins_viewer)
-            //    .map(function(e){
-            //      return d3.mean(arr.slice(e*bin_size_viewer, (e+1)*bin_size_viewer))
-            //    })
-            //);
-          }
-          arrs.push(tp_data)
-        }
-        data = {
-          'coords_dom': range_window,
-          'reads_dom': [0, d3.max(arrs.map(function(e){return d3.max(e)}).map(function(e){return d3.max(e)}))],
-          'bin_size': bin_size,
-          'tp': 0,
-          'resolution': resolution,
-          'exons': [
-            [200010, 200280],
-            [250010, 250180],
-            [271010, 271190],
-            [295000, 295100]
-          ],
-          'elems': viewers_types[c].names.map(function(e,i){
-            return {
-              'name': e,
-              'reads': arrs[i]
-              //'reads': arrs[i].map(function(ee){
-              //  return ee.map(function(eee){return eee})
-              //})
-            }
-          })
-          //'elems': [
-          //  {'name': 'H3K9me3', 'reads': arrs[0]},
-          //  {'name': 'H3K9me1', 'reads': arrs[1]}
-          //]
-        };
-      }
+      //if (!data) {
+      //  var viewers_types  = {
+      //    ".hist_mod_container.peak-viewer": {
+      //      'n':1,
+      //      'na  es': ['H3K9me1']
+      //    },
+      //    ".tf_container.peak-viewer": {
+      //      'n':5,
+      //      'names': ['GR']
+      //    },
+      //    ".dnase_container.peak-viewer": {
+      //      'n':1,
+      //      'names': ['DNase-I']
+      //    }
+      //  };
+      //  var arrs = [];
+      //  for (var ndatum = 0; ndatum < viewers_types[c].n; ndatum++) {
+      //    var tp_data = [];
+      //    for (var tp = 0; tp < tps; tp++) {
+      //      var arr = [];
+      //      for (var i = 0; i < nbins; i++) {
+      //        arr.push(Math.round(Math.random() * nbins))
+      //      }
+      //      tp_data.push(arr);
+      //      //tp_data.push(
+      //      //  d3.range(nbins_viewer)
+      //      //    .map(function(e){
+      //      //      return d3.mean(arr.slice(e*bin_size_viewer, (e+1)*bin_size_viewer))
+      //      //    })
+      //      //);
+      //    }
+      //    arrs.push(tp_data)
+      //  }
+      //  data = {
+      //    'coords_dom': range_window,
+      //    'reads_dom': [0, d3.max(arrs.map(function(e){return d3.max(e)}).map(function(e){return d3.max(e)}))],
+      //    'bin_size': bin_size,
+      //    'tp': 0,
+      //    'resolution': resolution,
+      //    'exons': [
+      //      [200010, 200280],
+      //      [250010, 250180],
+      //      [271010, 271190],
+      //      [295000, 295100]
+      //    ],
+      //    'elems': viewers_types[c].names.map(function(e,i){
+      //      return {
+      //        'name': e,
+      //        'reads': arrs[i]
+      //        //'reads': arrs[i].map(function(ee){
+      //        //  return ee.map(function(eee){return eee})
+      //        //})
+      //      }
+      //    })
+      //    //'elems': [
+      //    //  {'name': 'H3K9me3', 'reads': arrs[0]},
+      //    //  {'name': 'H3K9me1', 'reads': arrs[1]}
+      //    //]
+      //  };
+      //}
 
       return render(c);
     }

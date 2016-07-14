@@ -84,20 +84,20 @@
 
 <template name="peak_vizs">
   <!--<div class="row-fluid">-->
-    <h2>ChIPs [WIP]</h2>
-    <h4>Time of 100 nM DEX treatment (hs)</h4>
+    <h2>ChIP peaks [WIP]</h2>
+    <h4>Time of 100 nM DEX treatment (hs) | <button name="play-timeslider" id="play-timeslider">Play</button></h4>
     <div class="slider_container"></div>
 
     <div>
-    <label for="resolution">Resolution</label>
+    <label for="resolution">Window Len. / Resolution</label>
     <select id="resolution">
-      <option value="5" selected>5 bp</option>
-      <option value="10">10 bp</option>
-      <option value="25">25 bp</option>
-      <option value="50">50 bp</option>
-      <option value="100">100 bp</option>
-      <option value="1000">1000 bp</option>
+      <option value="5" selected>2 kb / 5 bp</option>
+      <!--<option value="10">10 bp</option>-->
+      <option value="25">50 kb / 25 bp</option>
+      <!--<option value="50">50 bp</option>-->
+      <option value="100">200 kb / 100 bp</option>
     </select>
+
     </div>
     <h4>Histone Mods.</h4>
     <button type="button" class="download-hist-mods">Download</button>
@@ -107,9 +107,9 @@
     <button type="button" class="download-tfs">Download</button>
     <div class="tf_container peak-viewer"></div>
 
-    <h4>DNase-I Hypersensitive Sites</h4>
-    <button type="button" class="download-dnases">Download</button>
-    <div class="dnase_container peak-viewer"></div>
+    <!--<h4>DNase-I Hypersensitive Sites</h4>-->
+    <!--<button type="button" class="download-dnases">Download</button>-->
+    <!--<div class="dnase_container peak-viewer"></div>-->
 
   <!--</div>-->
 </template>

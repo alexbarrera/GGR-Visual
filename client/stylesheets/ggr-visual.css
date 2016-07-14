@@ -95,6 +95,8 @@ button.displayToggle  {
     -webkit-transition-duration: 0.4s; /* Safari */
     transition-duration: 0.4s;
     cursor: pointer;
+    border-radius: 8px;
+    outline: none;
 }
 
 button.displayToggle:hover {
@@ -157,3 +159,30 @@ button.displayToggle:hover {
     stroke-dasharray: ("6, 6");
 }
 
+button#play-timeslider{
+    background-color: #4CAF50;
+    border-radius: 8px;
+    border: none;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    box-shadow: 0 5px #999;
+    outline: none;
+}
+
+button#play-timeslider:active {
+    background-color: #3e8e41;
+    box-shadow: 0 3px #666;
+    transform: translateY(4px);
+}
+
+button#play-timeslider:hover {background-color: #3e8e41}
+
+button#play-timeslider.playing{
+    background-color: #f44336;
+}
+
+button#play-timeslider.playing:hover:active {background-color: #8e301e  }

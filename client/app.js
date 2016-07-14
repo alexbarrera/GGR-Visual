@@ -1,14 +1,34 @@
+Array.prototype.pushIfNotIn = function(e){
+  var containsObject = function (obj, list) {
+    for (var x in list) {
+      if (JSON.stringify(list[x]) === JSON.stringify(obj)) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  if (!containsObject(e, this)){
+    this.push(e);
+  }
+};
+
 var options = {
   keepHistory: 1000 * 60 * 5,
   localSearch: true
 };
-var fields = ['gene_name'];
 
+/** Define search sources **/
+var TransSearch = new SearchSource('gene_tpms', ['gene'], options),
+  GenesSearch = new SearchSource('genes', ['gene'], options),
+  ExonsSearch = new SearchSource('exons', ['gene'], options);
 
-//DegsSearch = new SearchSource('gene_degs', fields, options);
-TransSearch = new SearchSource('gene_tpms', ['gene'], options);
-GenesSearch = new SearchSource('genes', ['gene'], options);
-ExonsSearch = new SearchSource('exons', ['gene'], options);
+var hist_mods = ['H3K4me1', 'H3K4me2', 'H3K4me3', 'H3K9me3', 'H3K27ac']; // TODO: make this work for 'H3K4me3' as well
+var tfs = ['GR'];
+var peak_viewers_set = ['hist_mods', 'tfs'];
+
+var HistModSearches = hist_mods.map(function(e){return new SearchSource(e, ['gene_id'], options)});
+var TfSearches = tfs.map(function(e){return new SearchSource(e, ['gene_id'], options)});
 
 Template.searchResult.helpers({
   getGenes: function() {
@@ -36,21 +56,6 @@ Template.searchResult.rendered = function(){
   Session.set('transcriptData', []);
 };
 
-Array.prototype.pushIfNotIn = function(e){
-  var containsObject = function (obj, list) {
-    for (var x in list) {
-      if (JSON.stringify(list[x]) === JSON.stringify(obj)) {
-        return true;
-      }
-    }
-    return false;
-  };
-
-  if (!containsObject(e, this)){
-    this.push(e);
-  }
-};
-
 
 Template.searchResult.events({
   'click': function(){
@@ -74,11 +79,75 @@ Template.searchResult.events({
         tss = exons.exons[0][0];
       else
         tss = exons.exons[exons.exons.length-1][1];
-      e.coords_domain([tss-100000, tss+100000]);
-      e.exons(exons.exons);
-      e.strand(exons.strand);
-      e.render()
+
+      e.tss(tss);
+      e.data({
+        coords_dom: [tss-5000, tss+5000],
+        exons: exons.exons,
+        strand: exons.strand,
+        tp: 0,
+        resolution: 5
+      });
+      //e.coords_domain([tss-5000, tss+5000]); //TODO: Change to use the zoom/resolution/bin_size from DB
+      //e.exons(exons.exons);
+      //e.strand(exons.strand);
+      //e.render()
     });
+
+    //GrsSearch.search(/\((.*)\)/.exec(gene_name)[1]);
+    //if (GrsSearch.getStatus().loading){
+    //  window.setTimeout(function(){
+    //    var reads = GrsSearch.getData({})
+    //      .filter(function(a){return gene_name.indexOf(a.gene_id)>0;})
+    //      .map(function(e){e.reads = utilsGGR.decompress_array(JSON.parse(e.reads)); return e})[0];
+    //    peak_viewers[0].data().elems[0].reads[0] = reads.reads;
+    //    peak_viewers[0].data().reads_dom = [0, d3.max(reads.reads)];
+    //    peak_viewers[0].render()
+    //  }, 1000);
+    //}
+    //var reads = GrsSearch.getData({}).filter(function(a){console.log(a); return gene_name.indexOf(a.gene_id)>0;}).map(JSON.parse)[0];
+
+    HistModSearches.map(function(histModSearch, i){
+      histModSearch.search(/\((.*)\)/.exec(gene_name)[1]);
+      var pv_index = peak_viewers_set.indexOf('hist_mods');
+      window.setTimeout(function(){  // TODO: investigate a better solution than the timeout closure
+        var reads = histModSearch.getData({})
+          .filter(function(a){return gene_name.indexOf(a.gene_id)>0;})
+          .map(function(e){e.reads = JSON.parse(e.reads); return e})[0];
+
+        if (peak_viewers[pv_index].data().elems)
+          peak_viewers[pv_index].data().elems.push({'reads': reads.reads, 'name': hist_mods[i]});
+        else
+          peak_viewers[pv_index].data().elems = [{'reads': reads.reads, 'name': hist_mods[i]}];
+
+        //peak_viewers[pv_index].data().reads_dom = [0, d3.max(reads.reads.map(function(e){return d3.max(e[0])}))];
+        peak_viewers[pv_index].data().reads_dom = [0, d3.max(peak_viewers[pv_index].data().elems.map(function(ee){
+          return d3.max(ee.reads.map(function(eee){
+            return d3.max(eee[0])
+          }))
+        }))];
+
+        peak_viewers[pv_index].render()
+      }, 1500);
+    });
+
+    TfSearches.map(function(tfSearch, i){
+      tfSearch.search(/\((.*)\)/.exec(gene_name)[1]);
+      var pv_index = peak_viewers_set.indexOf('tfs');
+      window.setTimeout(function(){  // TODO: investigate a better solution than the timeout closure
+        var reads = tfSearch.getData({})
+          .filter(function(a){return gene_name.indexOf(a.gene_id)>0;})
+          .map(function(e){e.reads = JSON.parse(e.reads); return e})[0];
+
+        peak_viewers[pv_index].data().reads_dom = [0, d3.max(reads.reads.map(function(e){return d3.max(e[0])}))];
+        if (peak_viewers[pv_index].data().elems)
+          peak_viewers[pv_index].data().elems.push({'reads': reads.reads, 'name': tfs[i]});
+        else
+          peak_viewers[pv_index].data().elems = [{'reads': reads.reads, 'name': tfs[i]}];
+        peak_viewers[pv_index].render()
+      }, 1500);
+    });
+
 
     var selectedGenes = Session.get('selectedGenes');
     selectedGenes.pushIfNotIn({'gene': gene_name});
@@ -110,8 +179,8 @@ Template.searchBox.events({
 Template.genes_chart.events({
   "click .displayToggle": function(event) {
     GeneTpms.toggleDisplayType('log2fc');
-    var textContent = event.srcElement.textContent;
-    event.srcElement.textContent =  textContent == 'show log2 fold change' ? 'show TPMs' : 'show log2 fold change';
+    var textContent = event.currentTarget.textContent;
+    event.currentTarget.textContent =  textContent == 'show log2 fold change' ? 'show TPMs' : 'show log2 fold change';
   },
   "click .download-degs": function(){
     downloadSVG('genes_container');
@@ -121,14 +190,14 @@ Template.genes_chart.events({
   }
 });
 
-peak_viewers = [];
+var peak_viewers = [];
 Template.peak_vizs.rendered = function(){
   var viewers_sel=$('.peak-viewer');
   viewers_sel.each(function(){
     peak_viewers.push(PeakviewerD3())
   });
   peak_viewers.forEach(function(e, i){
-    e.render(viewers_sel[i].getAttribute("class").split(" ").map(function(e){return "."+e}).join(""))
+    e.container(viewers_sel[i].getAttribute("class").split(" ").map(function(e){return "."+e}).join(""))
   });
   TimesliderD3.render(".slider_container", peak_viewers);
 };
@@ -141,11 +210,22 @@ Template.peak_vizs.events({
     downloadSVG('tf_container');
   },
   "change #resolution": function() {
-    var res = event.target.value;
+    var res = parseInt(event.target.value);
     peak_viewers.forEach(function(e){
-      e.resolution(parseInt(res));
+      e.resolution(res);
+      // Update elements depending of the resolution
+      e.coords_domain([e.tss() - res*1000, e.tss() + res*1000]);
+      e.data().reads_dom = [0, d3.max(e.data().elems.map(function(ee){
+        return d3.max(ee.reads.map(function(eee){
+          return d3.max(eee[e.resolutions_set().indexOf(res)])
+        }))
+      }))];
+      e.coords_domain([e.tss() - res*1000, e.tss() + res*1000]);
       e.render()
     });
+  },
+  "click #play-timeslider": function() {
+    TimesliderD3.togglePlay("#play-timeslider")
   }
 });
 
@@ -156,7 +236,7 @@ Template.genesSelected.helpers({
 });
 
 Template.genesSelected.events({
-  'click .delete-gene': function(event, template){
+  'click .delete-gene': function(){
       var selectedGenes = Session.get('selectedGenes');
       var sel_gene = this.gene;
       var filteredSelected = selectedGenes.filter(function(e){ return e.gene != sel_gene; });
