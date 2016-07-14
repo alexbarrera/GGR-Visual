@@ -124,7 +124,7 @@ TimesliderD3 = (function(){
         var next_tp= (timepoints.indexOf(last_tp)+1)%12;
         slider
           .call(brush.event)
-          .transition()
+          //.transition()
           .call(brush.extent([timepoints[next_tp],timepoints[next_tp]]))
           .call(brush.event);
         is_looping = true;
