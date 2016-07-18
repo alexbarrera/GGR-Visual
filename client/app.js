@@ -183,8 +183,8 @@ Template.peak_vizs.events({
 
 Template.peak_vizs.helpers({
   isLoading: function(){
-    return TfSearches.map(function(e){return e.getStatus().loading}).some(function(e){return e});
-      //|| HistModSearches.map(function(e){e.getStatus().loading}).some(function(e){return e})
+    return TfSearches.map(function(e){return e.getStatus().loading}).some(function(e){return e})
+      || HistModSearches.map(function(e){e.getStatus().loading}).some(function(e){return e});
   },
   geneForPeakUndef: function(){
     return Session.get('peaksGene') == undefined;
