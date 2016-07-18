@@ -23,7 +23,7 @@ var TransSearch = new SearchSource('gene_tpms', ['gene'], options),
   GenesSearch = new SearchSource('genes', ['gene'], options),
   ExonsSearch = new SearchSource('exons', ['gene'], options);
 
-var hist_mods = ['H3K4me1', 'H3K4me2', 'H3K4me3', 'H3K9me3', 'H3K27ac']; // TODO: make this work for 'H3K4me3' as well
+var hist_mods = ['H3K4me1', 'H3K4me2', 'H3K4me3', 'H3K9me3', 'H3K27ac'];
 var tfs = ['GR'];
 var peak_viewers_set = ['hist_mods', 'tfs'];
 
@@ -88,66 +88,18 @@ Template.searchResult.events({
         tp: 0,
         resolution: 5
       });
-      //e.coords_domain([tss-5000, tss+5000]); //TODO: Change to use the zoom/resolution/bin_size from DB
-      //e.exons(exons.exons);
-      //e.strand(exons.strand);
-      //e.render()
     });
 
-    //GrsSearch.search(/\((.*)\)/.exec(gene_name)[1]);
-    //if (GrsSearch.getStatus().loading){
-    //  window.setTimeout(function(){
-    //    var reads = GrsSearch.getData({})
-    //      .filter(function(a){return gene_name.indexOf(a.gene_id)>0;})
-    //      .map(function(e){e.reads = utilsGGR.decompress_array(JSON.parse(e.reads)); return e})[0];
-    //    peak_viewers[0].data().elems[0].reads[0] = reads.reads;
-    //    peak_viewers[0].data().reads_dom = [0, d3.max(reads.reads)];
-    //    peak_viewers[0].render()
-    //  }, 1000);
-    //}
-    //var reads = GrsSearch.getData({}).filter(function(a){console.log(a); return gene_name.indexOf(a.gene_id)>0;}).map(JSON.parse)[0];
 
     HistModSearches.map(function(histModSearch, i){
       histModSearch.search(/\((.*)\)/.exec(gene_name)[1]);
-      var pv_index = peak_viewers_set.indexOf('hist_mods');
-      window.setTimeout(function(){  // TODO: investigate a better solution than the timeout closure
-        var reads = histModSearch.getData({})
-          .filter(function(a){return gene_name.indexOf(a.gene_id)>0;})
-          .map(function(e){e.reads = JSON.parse(e.reads); return e})[0];
-
-        if (peak_viewers[pv_index].data().elems)
-          peak_viewers[pv_index].data().elems.push({'reads': reads.reads, 'name': hist_mods[i]});
-        else
-          peak_viewers[pv_index].data().elems = [{'reads': reads.reads, 'name': hist_mods[i]}];
-
-        //peak_viewers[pv_index].data().reads_dom = [0, d3.max(reads.reads.map(function(e){return d3.max(e[0])}))];
-        peak_viewers[pv_index].data().reads_dom = [0, d3.max(peak_viewers[pv_index].data().elems.map(function(ee){
-          return d3.max(ee.reads.map(function(eee){
-            return d3.max(eee[0])
-          }))
-        }))];
-
-        peak_viewers[pv_index].render()
-      }, 1500);
     });
 
     TfSearches.map(function(tfSearch, i){
       tfSearch.search(/\((.*)\)/.exec(gene_name)[1]);
-      var pv_index = peak_viewers_set.indexOf('tfs');
-      window.setTimeout(function(){  // TODO: investigate a better solution than the timeout closure
-        var reads = tfSearch.getData({})
-          .filter(function(a){return gene_name.indexOf(a.gene_id)>0;})
-          .map(function(e){e.reads = JSON.parse(e.reads); return e})[0];
-
-        peak_viewers[pv_index].data().reads_dom = [0, d3.max(reads.reads.map(function(e){return d3.max(e[0])}))];
-        if (peak_viewers[pv_index].data().elems)
-          peak_viewers[pv_index].data().elems.push({'reads': reads.reads, 'name': tfs[i]});
-        else
-          peak_viewers[pv_index].data().elems = [{'reads': reads.reads, 'name': tfs[i]}];
-        peak_viewers[pv_index].render()
-      }, 1500);
     });
 
+    Session.set('peaksGene', gene_name);
 
     var selectedGenes = Session.get('selectedGenes');
     selectedGenes.pushIfNotIn({'gene': gene_name});
@@ -226,6 +178,58 @@ Template.peak_vizs.events({
   },
   "click #play-timeslider": function() {
     TimesliderD3.togglePlay("#play-timeslider")
+  }
+});
+
+Template.peak_vizs.helpers({
+  isLoading: function(){
+    return TfSearches.map(function(e){return e.getStatus().loading}).some(function(e){return e});
+      //|| HistModSearches.map(function(e){e.getStatus().loading}).some(function(e){return e})
+  },
+  geneForPeakUndef: function(){
+    return Session.get('peaksGene') == undefined;
+  },
+  render: function(){
+    var gene_name = Session.get('peaksGene');
+    var pv_index = peak_viewers_set.indexOf('tfs');
+    TfSearches.map(function(tfSearch, i) {
+      var reads = tfSearch.getData({})
+        .filter(function (a) {
+          return gene_name.indexOf(a.gene_id) > 0;
+        })
+        .map(function (e) {
+          e.reads = JSON.parse(e.reads);
+          return e
+        })[0];
+
+      peak_viewers[pv_index].data().reads_dom = [0, d3.max(reads.reads.map(function (e) {return d3.max(e[0])}))];
+      if (peak_viewers[pv_index].data().elems)
+        peak_viewers[pv_index].data().elems.push({'reads': reads.reads, 'name': tfs[i]});
+      else
+        peak_viewers[pv_index].data().elems = [{'reads': reads.reads, 'name': tfs[i]}];
+      peak_viewers[pv_index].render()
+    });
+
+    HistModSearches.map(function(histModSearch, i){
+      histModSearch.search(/\((.*)\)/.exec(gene_name)[1]);
+      var pv_index = peak_viewers_set.indexOf('hist_mods');
+        var reads = histModSearch.getData({})
+          .filter(function(a){return gene_name.indexOf(a.gene_id)>0;})
+          .map(function(e){e.reads = JSON.parse(e.reads); return e})[0];
+
+        if (peak_viewers[pv_index].data().elems)
+          peak_viewers[pv_index].data().elems.push({'reads': reads.reads, 'name': hist_mods[i]});
+        else
+          peak_viewers[pv_index].data().elems = [{'reads': reads.reads, 'name': hist_mods[i]}];
+
+        peak_viewers[pv_index].data().reads_dom = [0, d3.max(peak_viewers[pv_index].data().elems.map(function(ee){
+          return d3.max(ee.reads.map(function(eee){
+            return d3.max(eee[0])
+          }))
+        }))];
+
+        peak_viewers[pv_index].render()
+    });
   }
 });
 
