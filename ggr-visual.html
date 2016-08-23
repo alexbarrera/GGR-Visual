@@ -21,6 +21,13 @@
       </div>
       <div class="span8 display_col hidden">
         {{> genes_chart}}
+      </div>
+    </div>
+    <div class="row-fluid">
+      <div class="span4">
+        {{> histmodsSelected}}
+      </div>
+      <div class="span8 display_col hidden">
         {{> peak_vizs}}
       </div>
     </div>
@@ -34,6 +41,18 @@
     <div class="selected_gene">
       <span class="selected_gene_name">{{{gene}}}</span>
       <i class="fa fa-remove pull-right text-danger delete-gene"></i>
+    </div>
+  {{/each}}
+    </div>
+</template>
+
+<template name="histmodsSelected">
+  <div class="selected_histmods hidden">
+    <h3>Selected Histone Mods.</h3>
+  {{#each selectedHistMods}}
+    <div class="selected_histmod included">
+      <span class="selected_histmod_name">{{{this}}}</span>
+      <i class="fa pull-right marker"></i>
     </div>
   {{/each}}
     </div>

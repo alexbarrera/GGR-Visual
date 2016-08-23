@@ -31,7 +31,8 @@ PeakviewerD3 = function () {
     defs,
     tss_coord,
     nbins_viewer=2000,
-    resolutions_set=[5,25,100];
+    resolutions_set=[5,25,100],
+    timepoints=[0,0.5,1,2,3,4,5,6,7,8,10,12];
 
 
   function init(c) {
@@ -110,7 +111,7 @@ PeakviewerD3 = function () {
       yAxis = d3.svg.axis()
         .scale(y)
         .orient('left')
-        .ticks(8)
+        .ticks(7)
         .tickPadding(5);
 
     axes.selectAll(".x.axis")
@@ -139,7 +140,7 @@ PeakviewerD3 = function () {
 
 
     var readsAreas = svgCanvas.selectAll(".readsArea")
-      .data(data.elems, function (d) {
+      .data(data.elems.filter(function(e){return !e.hidden}), function (d) {
         return d.name;
       });
     readsAreas.enter().append('path');
@@ -150,7 +151,7 @@ PeakviewerD3 = function () {
       .attr('data-legend', function(d){return d.name;})
       .attr('data-legend-pos', function(d, i){return i})
       .transition()
-      .duration(500)
+      .duration(300)
       .ease("cubic")
       .attr('d', function (d) {
         //return areaDrawer(d.reads[data.tp]);
@@ -222,6 +223,54 @@ PeakviewerD3 = function () {
     tss.exit().remove();
   }
 
+  function updateTimeline(){
+
+    var vals =  [[
+      [0, -margin.top/2],
+      [Math.round(width/12*timepoints[data.tp]), -margin.top/2]
+    ]];
+
+    var timeline = svgCanvas.selectAll(".timeline")
+      .data(vals);
+    timeline //.transition().duration(300)
+      .attr("d", function(dd){
+        return tss_line_gen(dd)
+      });
+
+    timeline.enter()
+      .append("path")
+      .attr("d", function(dd){
+          return tss_line_gen(dd)
+        }
+      )
+      .attr("class", "timeline");
+
+    var tl_label = svgCanvas.selectAll(".timelineLabel")
+      .data([timepoints[data.tp]]);
+    tl_label
+      .attr("class", "timelineLabel")
+      .attr("transform", "translate(" + (Math.round(width/12*timepoints[data.tp])+4) + "," + -margin.top/2 + ")")
+      .attr("dy", ".35em")
+      .attr("text-anchor", "start")
+      .style("color", "red")
+      .text(function(d){
+        return d + "hs";
+      });
+
+    tl_label.enter()
+      .append("text")
+      .attr("class", "timelineLabel")
+      .attr("transform", "translate(" + (Math.round(width/12*timepoints[data.tp])+4) + "," + -margin.top/2 + ")")
+      .attr("dy", ".35em")
+      .attr("text-anchor", "start")
+      .style("color", "red")
+      .text(function(d){
+        return d + "hs";
+      });
+
+
+  }
+
   function renderIntronsExons(x, y) {
     var exons = svgCanvas.selectAll("rect.exon")
       .data(data.exons);
@@ -283,6 +332,7 @@ PeakviewerD3 = function () {
     renderAxis(x, y);
     updateLegend();
     updateTss();
+    updateTimeline();
     svgCanvas.select('.tss').moveToFront();
     renderIntronsExons(x, y);
     svgCanvas.selectAll('.exon').moveToFront();
@@ -393,6 +443,16 @@ PeakviewerD3 = function () {
       //    //]
       //  };
       //}
+      var resolutions_set = this.resolutions_set();
+      var res = this.resolution();
+      this.coords_domain([this.tss() - res*1000, this.tss() + res*1000]);
+      this.data().reads_dom = [0,
+        d3.max(this.data().elems.filter(function(e){return !e.hidden}).map(function(ee){
+          return d3.max(ee.reads.map(function(eee){
+            return d3.max(eee[resolutions_set.indexOf(res)])
+          }))
+      }))];
+      this.coords_domain([this.tss() - res*1000, this.tss() + res*1000]);
 
       return render(c);
     }

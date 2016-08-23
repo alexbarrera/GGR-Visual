@@ -61,6 +61,7 @@ Template.searchResult.events({
   'click': function(){
     $('.display_col').removeClass('hidden');
     $('.selected_genes').removeClass('hidden');
+    $('.selected_histmods').removeClass('hidden');
     $('#gene_name_span').text(this.gene.replace("<b>","").replace("</b>", ""));
     var gene_obj = utilsGGR.geneToJson(this);
     var gene_name = gene_obj.gene_name;
@@ -166,13 +167,13 @@ Template.peak_vizs.events({
     peak_viewers.forEach(function(e){
       e.resolution(res);
       // Update elements depending of the resolution
-      e.coords_domain([e.tss() - res*1000, e.tss() + res*1000]);
-      e.data().reads_dom = [0, d3.max(e.data().elems.map(function(ee){
-        return d3.max(ee.reads.map(function(eee){
-          return d3.max(eee[e.resolutions_set().indexOf(res)])
-        }))
-      }))];
-      e.coords_domain([e.tss() - res*1000, e.tss() + res*1000]);
+      //e.coords_domain([e.tss() - res*1000, e.tss() + res*1000]);
+      //e.data().reads_dom = [0, d3.max(e.data().elems.map(function(ee){
+      //  return d3.max(ee.reads.map(function(eee){
+      //    return d3.max(eee[e.resolutions_set().indexOf(res)])
+      //  }))
+      //}))];
+      //e.coords_domain([e.tss() - res*1000, e.tss() + res*1000]);
       e.render()
     });
   },
@@ -239,6 +240,13 @@ Template.genesSelected.helpers({
   }
 });
 
+
+Template.histmodsSelected.helpers({
+  selectedHistMods: function(){
+    return hist_mods;
+  }
+});
+
 Template.genesSelected.events({
   'click .delete-gene': function(){
       var selectedGenes = Session.get('selectedGenes');
@@ -257,5 +265,17 @@ Template.genesSelected.events({
     var selectedTranscipts = transcData.filter(function(e){return e.gene === sel_gene});
     TranscriptTpms.setData(selectedTranscipts[0].trans);
     TranscriptTpms.renderChart();
+  }
+});
+
+Template.histmodsSelected.events({
+
+  'click .selected_histmod': function(e){
+    $(e.currentTarget).toggleClass('included');
+    var pv_index = peak_viewers_set.indexOf('hist_mods');
+    var histmod_index = hist_mods.indexOf(this.toString());
+
+    peak_viewers[pv_index].data().elems[histmod_index].hidden = !$(e.currentTarget).hasClass('included');
+    peak_viewers[pv_index].render();
   }
 });

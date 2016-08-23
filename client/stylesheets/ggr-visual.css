@@ -23,7 +23,7 @@
     height: 15px;
 }
 
-.matched_gene, .selected_gene {
+.matched_gene, .selected_gene, .selected_histmod{
     /*width: 600px;*/
     border-bottom: 1px solid #eee;
     padding: 8px 4px;
@@ -39,7 +39,7 @@
     background: #f0b92e;
 }
 
-span.selected_gene_name{
+span.selected_gene_name, span.selected_histmod_name{
     cursor: pointer;
 }
 
@@ -186,3 +186,26 @@ button#play-timeslider.playing{
 }
 
 button#play-timeslider.playing:hover:active {background-color: #8e301e  }
+
+
+.selected_histmod{
+    cursor: pointer;
+    background: url(eye-closed.png) no-repeat;
+    background-color: #ff9aa9;
+    background-position: right;
+}
+.selected_histmod.included{
+    background: url(eye.png) no-repeat;
+    background-color: #adffa0;
+    background-position: right;
+}
+
+/*.selected_histmod.included .marker{*/
+    /*list-style-image: url('eye.png');*/
+/*}*/
+
+.timeline{
+    stroke: #cbcbcb;
+    stroke-linecap: round;
+    stroke-width: 4px;
+}
