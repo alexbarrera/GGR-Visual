@@ -23,7 +23,7 @@
     height: 15px;
 }
 
-.matched_gene, .selected_gene, .selected_histmod{
+.matched_gene, .selected_gene, .selected_histmod, .selected_tf{
     /*width: 600px;*/
     border-bottom: 1px solid #eee;
     padding: 8px 4px;
@@ -35,11 +35,11 @@
     cursor: pointer;
 }
 
-.selected_gene:hover {
+.selected_gene:hover, .selected{
     background: #f0b92e;
 }
 
-span.selected_gene_name, span.selected_histmod_name{
+span.selected_gene_name, span.selected_histmod_name, span.selected_tf{
     cursor: pointer;
 }
 
@@ -188,13 +188,13 @@ button#play-timeslider.playing{
 button#play-timeslider.playing:hover:active {background-color: #8e301e  }
 
 
-.selected_histmod{
+.selected_histmod,.selected_tf{
     cursor: pointer;
     background: url(eye-closed.png) no-repeat;
     background-color: #ff9aa9;
     background-position: right;
 }
-.selected_histmod.included{
+.selected_histmod.included,.selected_tf.included{
     background: url(eye.png) no-repeat;
     background-color: #adffa0;
     background-position: right;

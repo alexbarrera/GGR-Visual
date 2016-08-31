@@ -31,7 +31,7 @@ PeakviewerD3 = function () {
     defs,
     tss_coord,
     nbins_viewer=2000,
-    resolutions_set=[5,25,100],
+    resolutions_set=[5,10,25,50,100,250],
     timepoints=[0,0.5,1,2,3,4,5,6,7,8,10,12];
 
 
@@ -39,7 +39,7 @@ PeakviewerD3 = function () {
     container = c || container;
     svgWidth = 700;
     svgHeight = 250;
-    margin = {top: 20, right: 140, bottom: 20, left: 50};
+    margin = {top: 20, right: 140, bottom: 20, left: 70};
     width = svgWidth - margin.left - margin.right;
     height = svgHeight - margin.top - margin.bottom;
 
@@ -336,7 +336,6 @@ PeakviewerD3 = function () {
     svgCanvas.select('.tss').moveToFront();
     renderIntronsExons(x, y);
     svgCanvas.selectAll('.exon').moveToFront();
-    //console.log(Date.now());
     return this;
   }
 
@@ -376,73 +375,6 @@ PeakviewerD3 = function () {
     },
 
     render: function (c) {
-      //var range_window = [100000, 300000],
-      //  resolution= 5,
-      //  nbins = Math.abs(range_window[1]-range_window[0])/resolution,
-      //  tps=12,
-      //  bin_size = Math.abs(range_window[1]-range_window[0])/nbins_viewer,
-      //  bin_size_viewer=nbins/nbins_viewer;
-
-      //if (!data) {
-      //  var viewers_types  = {
-      //    ".hist_mod_container.peak-viewer": {
-      //      'n':1,
-      //      'na  es': ['H3K9me1']
-      //    },
-      //    ".tf_container.peak-viewer": {
-      //      'n':5,
-      //      'names': ['GR']
-      //    },
-      //    ".dnase_container.peak-viewer": {
-      //      'n':1,
-      //      'names': ['DNase-I']
-      //    }
-      //  };
-      //  var arrs = [];
-      //  for (var ndatum = 0; ndatum < viewers_types[c].n; ndatum++) {
-      //    var tp_data = [];
-      //    for (var tp = 0; tp < tps; tp++) {
-      //      var arr = [];
-      //      for (var i = 0; i < nbins; i++) {
-      //        arr.push(Math.round(Math.random() * nbins))
-      //      }
-      //      tp_data.push(arr);
-      //      //tp_data.push(
-      //      //  d3.range(nbins_viewer)
-      //      //    .map(function(e){
-      //      //      return d3.mean(arr.slice(e*bin_size_viewer, (e+1)*bin_size_viewer))
-      //      //    })
-      //      //);
-      //    }
-      //    arrs.push(tp_data)
-      //  }
-      //  data = {
-      //    'coords_dom': range_window,
-      //    'reads_dom': [0, d3.max(arrs.map(function(e){return d3.max(e)}).map(function(e){return d3.max(e)}))],
-      //    'bin_size': bin_size,
-      //    'tp': 0,
-      //    'resolution': resolution,
-      //    'exons': [
-      //      [200010, 200280],
-      //      [250010, 250180],
-      //      [271010, 271190],
-      //      [295000, 295100]
-      //    ],
-      //    'elems': viewers_types[c].names.map(function(e,i){
-      //      return {
-      //        'name': e,
-      //        'reads': arrs[i]
-      //        //'reads': arrs[i].map(function(ee){
-      //        //  return ee.map(function(eee){return eee})
-      //        //})
-      //      }
-      //    })
-      //    //'elems': [
-      //    //  {'name': 'H3K9me3', 'reads': arrs[0]},
-      //    //  {'name': 'H3K9me1', 'reads': arrs[1]}
-      //    //]
-      //  };
-      //}
       var resolutions_set = this.resolutions_set();
       var res = this.resolution();
       this.coords_domain([this.tss() - res*1000, this.tss() + res*1000]);

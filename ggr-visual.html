@@ -23,14 +23,7 @@
         {{> genes_chart}}
       </div>
     </div>
-    <div class="row-fluid">
-      <div class="span4">
-        {{> histmodsSelected}}
-      </div>
-      <div class="span8 display_col hidden">
-        {{> peak_vizs}}
-      </div>
-    </div>
+    {{> peak_vizs}}
   </div>
 </body>
 
@@ -41,18 +34,6 @@
     <div class="selected_gene">
       <span class="selected_gene_name">{{{gene}}}</span>
       <i class="fa fa-remove pull-right text-danger delete-gene"></i>
-    </div>
-  {{/each}}
-    </div>
-</template>
-
-<template name="histmodsSelected">
-  <div class="selected_histmods hidden">
-    <h3>Selected Histone Mods.</h3>
-  {{#each selectedHistMods}}
-    <div class="selected_histmod included">
-      <span class="selected_histmod_name">{{{this}}}</span>
-      <i class="fa pull-right marker"></i>
     </div>
   {{/each}}
     </div>
@@ -90,50 +71,96 @@
       </div>
       <div>
         <div class="genes_container"></div>
-
+        <!--<button type="button" class="toggleTranscripts">hide transcripts</button>-->
       </div>
-      <div>
+      <div class="transcripts_container hidden">
         <h4>Transcripts of: <span id="gene_name_span"></span></h4>
           <button type="button" class="download-tpms">Download</button>
         <div class="tpms_container"></div>
       </div>
 </template>
 
+<template name="histmodsSelected">
+  <div class="selected_histmods">
+    <h4>Selected Histone Mods.</h4>
+    {{#each selectedHistMods}}
+      <div class="selected_histmod included">
+        <span class="selected_histmod_name">{{{this}}}</span>
+        <i class="fa pull-right marker"></i>
+      </div>
+    {{/each}}
+  </div>
+</template>
+
+<template name="tfsSelected">
+  <div class="selected_tfs">
+    <h4>Selected Transcription Factors</h4>
+    {{#each selectedTfs}}
+      <div class="selected_tf included">
+        <span class="selected_tf_name">{{{this}}}</span>
+        <i class="fa pull-right marker"></i>
+      </div>
+    {{/each}}
+  </div>
+</template>
+
+
 <template name="peak_vizs">
-  <!--<div class="row-fluid">-->
-    <h2>ChIP peaks [WIP]</h2>
-    <h4>Time of 100 nM DEX treatment (hs) | <button name="play-timeslider" id="play-timeslider">Play</button></h4>
-    <div class="slider_container"></div>
+  <div class="row-fluid">
+    <div class="col-md-8 col-md-offset-4 col-lg-8 col-lg-offset-4 display_col hidden">
+      <h2>ChIP peaks</h2>
+      <h4>Gene: {{{getGene}}}</h4>
+      <h4>Time of 100 nM DEX treatment (hs) | <button name="play-timeslider" id="play-timeslider">Play</button></h4>
+      <div class="slider_container"></div>
 
-    <div>
-    <label for="resolution">Window Len. / Resolution</label>
-    <select id="resolution">
-      <option value="5" selected>2 kb / 5 bp</option>
-      <!--<option value="10">10 bp</option>-->
-      <option value="25">50 kb / 25 bp</option>
-      <!--<option value="50">50 bp</option>-->
-      <option value="100">200 kb / 100 bp</option>
-    </select>
-
+      <div>
+      <label for="resolution">Window Len. / Resolution</label>
+      <select id="resolution">
+        <option value="5" selected>2 kb / 5 bp</option>
+        <option value="10">10 kb / 10 bp</option>
+        <option value="25">50 kb / 25 bp</option>
+        <option value="50">100 kb/ 50 bp</option>
+        <option value="100">200 kb / 100 bp</option>
+        <option value="250">500 kb / 250 bp</option>
+      </select>
+      </div>
     </div>
-    <h4>Histone Mods.</h4>
-    <button type="button" class="download-hist-mods">Download</button>
-    <div class="hist_mod_container peak-viewer"></div>
+  </div>
 
-    <h4>Transcription Factors</h4>
-    <button type="button" class="download-tfs">Download</button>
-    <div class="tf_container peak-viewer"></div>
-    {{#unless geneForPeakUndef}}
-      {{#if isLoading }}
-        {{> loader}}
-      {{else}}
-        {{render}}
-      {{/if}}
-    {{/unless}}
+    <div class="row-fluid display_col hidden">
+      <div class="span4">
+        {{> histmodsSelected}}
+      </div>
+      <div class="span8">
+        <h4>Histone Mods.</h4>
+        <button type="button" class="download-hist-mods">Download</button>
+        <div class="hist_mod_container peak-viewer"></div>
+      </div>
+    </div>
+    <div class="row-fluid display_col hidden">
+      <div class="span4">
+        {{> tfsSelected}}
+      </div>
+      <div class="span8">
+      <h4>Transcription Factors</h4>
+        <button type="button" class="download-tfs">Download</button>
+        <div class="tf_container peak-viewer"></div>
 
-    <!--<h4>DNase-I Hypersensitive Sites</h4>--> <!-- TODO: Work on this!! -->
-    <!--<button type="button" class="download-dnases">Download</button>-->
-    <!--<div class="dnase_container peak-viewer"></div>-->
+        <h4>DNase-I Hypersensitive Sites</h4>
+        <button type="button" class="download-dnases">Download</button>
+        <div class="dnase_container peak-viewer"></div>
+
+        {{#unless geneForPeakUndef}}
+          {{#if isLoading }}
+            {{> loader}}
+          {{else}}
+            {{render}}
+          {{/if}}
+        {{/unless}}
+      </div>
+    </div>
+
+
 
   <!--</div>-->
 </template>
