@@ -23,12 +23,24 @@ var TransSearch = new SearchSource('gene_tpms', ['gene'], options),
   GenesSearch = new SearchSource('genes', ['gene'], options),
   ExonsSearch = new SearchSource('exons', ['gene'], options);
 
-var hist_mods = ['H3K4me1', 'H3K4me2', 'H3K4me3', 'H3K9me3', 'H3K27ac'];
+var hist_mods = ['H3K4me1', 'H3K4me2', 'H3K4me3', 'H3K9me3', 'H3K27ac']; //TODO: get this from DB
 var tfs = ['GR'];
-var peak_viewers_set = ['hist_mods', 'tfs'];
+var dnases = ['DNaseI'];
+var peak_viewers_set = ['hist_mods', 'tfs', 'dnases'];
+var peak_viewers_names = {
+  hist_mods: hist_mods,
+  tfs: tfs,
+  dnases: dnases
+};
 
-var HistModSearches = hist_mods.map(function(e){return new SearchSource(e, ['gene_id'], options)});
-var TfSearches = tfs.map(function(e){return new SearchSource(e, ['gene_id'], options)});
+
+//var HistModSearches = hist_mods.map(function(e){return new SearchSource(e, ['gene_id'], options)});
+//var TfSearches = tfs.map(function(e){return new SearchSource(e, ['gene_id'], options)});
+var searchHandlers = {
+  hist_mods: hist_mods.map(function(e){return new SearchSource(e, ['gene_id'], options)}),
+  tfs: tfs.map(function(e){return new SearchSource(e, ['gene_id'], options)}),
+  dnases: dnases.map(function(e){return new SearchSource(e, ['gene_id'], options)})
+};
 
 Template.searchResult.helpers({
   getGenes: function() {
@@ -54,14 +66,55 @@ Template.searchResult.rendered = function(){
   TranscriptTpms.init('.tpms_container');
   Session.set('selectedGenes', []);
   Session.set('transcriptData', []);
+  Session.set('exonsData', {});
 };
 
+var initial_values = {
+  tp: 0,
+  resolution: 5
+};
+
+var updateGeneSelected = function(gene_name){
+  var exons = Session.get('exonsData')[gene_name];
+  peak_viewers.forEach(function(e, i){
+    var tss;
+    if (exons.strand == '+')
+      tss = exons.exons[0][0];
+    else
+      tss = exons.exons[exons.exons.length-1][1];
+
+    e.tss(tss);
+    e.data({
+      coords_dom: [tss-initial_values.resolution*1000, tss+initial_values.resolution*1000],
+      exons: exons.exons,
+      strand: exons.strand,
+      tp: initial_values.tp,
+      resolution: initial_values.resolution
+    });
+  });
+
+  // Update resolution
+  $('#resolution').val(initial_values.resolution);
+
+  // Update timeslider
+  TimesliderD3.tp(initial_values.tp);
+  TimesliderD3.moveTo(initial_values.tp);
+
+  for (var s in searchHandlers){
+    if (searchHandlers.hasOwnProperty(s)){
+      searchHandlers[s].map(function(ss){
+        ss.search(/\((.*)\)/.exec(gene_name)[1]);
+      });
+    }
+  }
+
+  Session.set('peaksGene', gene_name);
+};
 
 Template.searchResult.events({
   'click': function(){
     $('.display_col').removeClass('hidden');
     $('.selected_genes').removeClass('hidden');
-    $('.selected_histmods').removeClass('hidden');
     $('#gene_name_span').text(this.gene.replace("<b>","").replace("</b>", ""));
     var gene_obj = utilsGGR.geneToJson(this);
     var gene_name = gene_obj.gene_name;
@@ -74,33 +127,6 @@ Template.searchResult.events({
     TranscriptTpms.renderChart();
 
     var exons = ExonsSearch.getData({}).filter(function (a){return a.gene == gene_name;}).map(utilsGGR.exonToJson)[0];
-    peak_viewers.forEach(function(e, i){
-      var tss;
-      if (exons.strand == '+')
-        tss = exons.exons[0][0];
-      else
-        tss = exons.exons[exons.exons.length-1][1];
-
-      e.tss(tss);
-      e.data({
-        coords_dom: [tss-5000, tss+5000],
-        exons: exons.exons,
-        strand: exons.strand,
-        tp: 0,
-        resolution: 5
-      });
-    });
-
-
-    HistModSearches.map(function(histModSearch, i){
-      histModSearch.search(/\((.*)\)/.exec(gene_name)[1]);
-    });
-
-    TfSearches.map(function(tfSearch, i){
-      tfSearch.search(/\((.*)\)/.exec(gene_name)[1]);
-    });
-
-    Session.set('peaksGene', gene_name);
 
     var selectedGenes = Session.get('selectedGenes');
     selectedGenes.pushIfNotIn({'gene': gene_name});
@@ -109,6 +135,12 @@ Template.searchResult.events({
     var transData = Session.get('transcriptData');
     transData.pushIfNotIn({'gene': gene_name, 'trans': trans});
     Session.set('transcriptData', transData);
+
+    var exonsData = Session.get('exonsData');
+    exonsData[gene_name] = exons;
+    Session.set('exonsData', exonsData);
+
+    updateGeneSelected(gene_name);
 
     //var selectedGenes = Session.get('selectedGenes');
     //if (!selectedGenes.map(function(e){return e.gene === gene_name}).some(function(e){return e})) {
@@ -140,7 +172,14 @@ Template.genes_chart.events({
   },
   "click .download-tpms": function(){
     downloadSVG('tpms_container');
+  },
+  "click .toggleTranscripts": function(e){
+    $('.transcripts_container').toggleClass('hidden');
+    var textContent = e.currentTarget.textContent;
+    e.currentTarget.textContent =  textContent == 'show transcripts' ? 'hide transcripts' : 'show transcripts';
   }
+
+
 });
 
 var peak_viewers = [];
@@ -162,18 +201,13 @@ Template.peak_vizs.events({
   "click .download-tfs": function() {
     downloadSVG('tf_container');
   },
+  "click .download-dnases": function() {
+    downloadSVG('dnase_container');
+  },
   "change #resolution": function() {
     var res = parseInt(event.target.value);
     peak_viewers.forEach(function(e){
       e.resolution(res);
-      // Update elements depending of the resolution
-      //e.coords_domain([e.tss() - res*1000, e.tss() + res*1000]);
-      //e.data().reads_dom = [0, d3.max(e.data().elems.map(function(ee){
-      //  return d3.max(ee.reads.map(function(eee){
-      //    return d3.max(eee[e.resolutions_set().indexOf(res)])
-      //  }))
-      //}))];
-      //e.coords_domain([e.tss() - res*1000, e.tss() + res*1000]);
       e.render()
     });
   },
@@ -184,54 +218,38 @@ Template.peak_vizs.events({
 
 Template.peak_vizs.helpers({
   isLoading: function(){
-    return TfSearches.map(function(e){return e.getStatus().loading}).some(function(e){return e})
-      || HistModSearches.map(function(e){e.getStatus().loading}).some(function(e){return e});
+    return Object.keys(searchHandlers).map(function(vs){
+        return searchHandlers[vs].map(function(e){return e.getStatus().loading}).some(function(e){return e})
+    }).some(function(e){return e});
   },
   geneForPeakUndef: function(){
     return Session.get('peaksGene') == undefined;
   },
   render: function(){
     var gene_name = Session.get('peaksGene');
-    var pv_index = peak_viewers_set.indexOf('tfs');
-    TfSearches.map(function(tfSearch, i) {
-      var reads = tfSearch.getData({})
-        .filter(function (a) {
-          return gene_name.indexOf(a.gene_id) > 0;
-        })
-        .map(function (e) {
-          e.reads = JSON.parse(e.reads);
-          return e
-        })[0];
 
-      peak_viewers[pv_index].data().reads_dom = [0, d3.max(reads.reads.map(function (e) {return d3.max(e[0])}))];
-      if (peak_viewers[pv_index].data().elems)
-        peak_viewers[pv_index].data().elems.push({'reads': reads.reads, 'name': tfs[i]});
-      else
-        peak_viewers[pv_index].data().elems = [{'reads': reads.reads, 'name': tfs[i]}];
-      peak_viewers[pv_index].render()
-    });
-
-    HistModSearches.map(function(histModSearch, i){
-      histModSearch.search(/\((.*)\)/.exec(gene_name)[1]);
-      var pv_index = peak_viewers_set.indexOf('hist_mods');
-        var reads = histModSearch.getData({})
-          .filter(function(a){return gene_name.indexOf(a.gene_id)>0;})
-          .map(function(e){e.reads = JSON.parse(e.reads); return e})[0];
+    peak_viewers_set.map(function(pv){
+      var pv_index = peak_viewers_set.indexOf(pv);
+      searchHandlers[pv].map(function(sh, i){
+        var reads = sh.getData({})
+          .filter(function (a) {return gene_name.indexOf(a.gene_id) > 0;})
+          .map(function (e) {e.reads = JSON.parse(e.reads);return e})[0];
 
         if (peak_viewers[pv_index].data().elems)
-          peak_viewers[pv_index].data().elems.push({'reads': reads.reads, 'name': hist_mods[i]});
+          peak_viewers[pv_index].data().elems.push({'reads': reads.reads, 'name': peak_viewers_names[pv][i]});
         else
-          peak_viewers[pv_index].data().elems = [{'reads': reads.reads, 'name': hist_mods[i]}];
+          peak_viewers[pv_index].data().elems = [{'reads': reads.reads, 'name': peak_viewers_names[pv][i]}];
 
         peak_viewers[pv_index].data().reads_dom = [0, d3.max(peak_viewers[pv_index].data().elems.map(function(ee){
           return d3.max(ee.reads.map(function(eee){
             return d3.max(eee[0])
           }))
         }))];
-
-        peak_viewers[pv_index].render()
+      });
+      peak_viewers[pv_index].render()
     });
-  }
+  },
+  getGene: function(){return Session.get('peaksGene')}
 });
 
 Template.genesSelected.helpers({
@@ -247,6 +265,12 @@ Template.histmodsSelected.helpers({
   }
 });
 
+Template.tfsSelected.helpers({
+  selectedTfs: function(){
+    return tfs;
+  }
+});
+
 Template.genesSelected.events({
   'click .delete-gene': function(){
       var selectedGenes = Session.get('selectedGenes');
@@ -259,23 +283,38 @@ Template.genesSelected.events({
       var transcData = Session.get('transcriptData');
       Session.set('transcriptData', transcData.filter(function(e){return e.gene != sel_gene}));
     },
-  'click .selected_gene_name': function(){
+  'click .selected_gene_name': function(e){
     var sel_gene = this.gene;
     var transcData = Session.get('transcriptData');
     var selectedTranscipts = transcData.filter(function(e){return e.gene === sel_gene});
     TranscriptTpms.setData(selectedTranscipts[0].trans);
     TranscriptTpms.renderChart();
+    updateGeneSelected(sel_gene);
+    var sel_cont = e.currentTarget.parentElement;
+    $(sel_cont.parentNode.childNodes).removeClass('selected');
+    $(sel_cont).addClass('selected');
   }
 });
 
 Template.histmodsSelected.events({
-
   'click .selected_histmod': function(e){
     $(e.currentTarget).toggleClass('included');
     var pv_index = peak_viewers_set.indexOf('hist_mods');
     var histmod_index = hist_mods.indexOf(this.toString());
 
     peak_viewers[pv_index].data().elems[histmod_index].hidden = !$(e.currentTarget).hasClass('included');
+    peak_viewers[pv_index].render();
+  }
+});
+
+Template.tfsSelected.events({
+
+  'click .selected_tf': function(e){
+    $(e.currentTarget).toggleClass('included');
+    var pv_index = peak_viewers_set.indexOf('tfs');
+    var tf_index = tfs.indexOf(this.toString());
+
+    peak_viewers[pv_index].data().elems[tf_index].hidden = !$(e.currentTarget).hasClass('included');
     peak_viewers[pv_index].render();
   }
 });

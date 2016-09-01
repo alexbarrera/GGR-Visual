@@ -29,7 +29,7 @@ TimesliderD3 = (function(){
     .on("brush", brushed);
 
   function brushed(v) {
-    var value = v || q(brush.extent()[0]);
+    var value = (v != undefined ? v : q(brush.extent()[0]));
 
     if (d3.event && d3.event.sourceEvent) { // not a programmatic event
       value = q(x.invert(d3.mouse(this)[0]));
@@ -92,21 +92,13 @@ TimesliderD3 = (function(){
     }
 
     last_tp = 0;
-    //slider
-    //  .call(brush.event)
-    //  .transition() // gratuitous intro!
-    //  .duration(750)
-    //  .call(brush.extent([70, 70]))
-    //  .call(brush.event);
-
-
 
   };
 
   return {
     render: function(c, vs){
-      peak_viewers=vs;
-      container=c;
+      if (vs) peak_viewers=vs;
+      if (c) container=c;
       return render();
     },
     togglePlay: function(elem){
@@ -131,10 +123,11 @@ TimesliderD3 = (function(){
       }, 1000);
 
     },
-    stop: function(){
-      if (is_looping)
-        clearInterval(timer);
-      is_looping=false;
+    tp: function(tp){
+      return (tp != undefined ? last_tp = tp : last_tp);
+    },
+    moveTo: function(tp){
+      brushed(tp);
     }
   }
 }());
