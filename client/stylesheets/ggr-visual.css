@@ -209,3 +209,7 @@ button#play-timeslider.playing:hover:active {background-color: #8e301e  }
     stroke-linecap: round;
     stroke-width: 4px;
 }
+
+.selected_tfs h4, .selected_histmods h4{
+    text-align: right;
+}

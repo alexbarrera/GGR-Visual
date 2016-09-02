@@ -23,7 +23,7 @@ var TransSearch = new SearchSource('gene_tpms', ['gene'], options),
   GenesSearch = new SearchSource('genes', ['gene'], options),
   ExonsSearch = new SearchSource('exons', ['gene'], options);
 
-var hist_mods = ['H3K4me1', 'H3K4me2', 'H3K4me3', 'H3K9me3', 'H3K27ac']; //TODO: get this from DB
+var hist_mods = ['H3K4me1', 'H3K4me2', 'H3K4me3', 'H3K9me3', 'H3K27ac', 'DNaseI'];  //TODO: get this from DB
 var tfs = ['GR'];
 var dnases = ['DNaseI'];
 var peak_viewers_set = ['hist_mods', 'tfs', 'dnases'];
@@ -115,7 +115,7 @@ Template.searchResult.events({
   'click': function(){
     $('.display_col').removeClass('hidden');
     $('.selected_genes').removeClass('hidden');
-    $('#gene_name_span').text(this.gene.replace("<b>","").replace("</b>", ""));
+    $('#gene_name_transcripts').text(this.gene.replace("<b>","").replace("</b>", ""));
     var gene_obj = utilsGGR.geneToJson(this);
     var gene_name = gene_obj.gene_name;
     var gene_name_stripped = gene_name.replace(/\(.*\)/, "");
@@ -142,11 +142,6 @@ Template.searchResult.events({
 
     updateGeneSelected(gene_name);
 
-    //var selectedGenes = Session.get('selectedGenes');
-    //if (!selectedGenes.map(function(e){return e.gene === gene_name}).some(function(e){return e})) {
-    //  selectedGenes.push({'gene': gene_name});
-    //  Session.set('selectedGenes', selectedGenes);
-    //}
   }
 
 });
@@ -228,8 +223,7 @@ Template.peak_vizs.helpers({
   render: function(){
     var gene_name = Session.get('peaksGene');
 
-    peak_viewers_set.map(function(pv){
-      var pv_index = peak_viewers_set.indexOf(pv);
+    peak_viewers_set.map(function(pv, pv_index){
       searchHandlers[pv].map(function(sh, i){
         var reads = sh.getData({})
           .filter(function (a) {return gene_name.indexOf(a.gene_id) > 0;})
@@ -246,6 +240,15 @@ Template.peak_vizs.helpers({
           }))
         }))];
       });
+
+      var selected_class = '.selected_'+pv.replaceAll('_', '').replace(/s$/, '');
+      $(selected_class).each(function(){
+        var selected_pv = $(this).children(selected_class + '_name').text();
+        var included =  $(this).hasClass('included');
+        var idx = peak_viewers_names[pv].indexOf(selected_pv);
+        peak_viewers[pv_index].data().elems[idx].hidden = !included;
+      });
+
       peak_viewers[pv_index].render()
     });
   },
@@ -285,6 +288,8 @@ Template.genesSelected.events({
     },
   'click .selected_gene_name': function(e){
     var sel_gene = this.gene;
+    $('#gene_name_transcripts').text(this.gene.replace("<b>","").replace("</b>", ""));
+
     var transcData = Session.get('transcriptData');
     var selectedTranscipts = transcData.filter(function(e){return e.gene === sel_gene});
     TranscriptTpms.setData(selectedTranscipts[0].trans);
@@ -300,8 +305,12 @@ Template.histmodsSelected.events({
   'click .selected_histmod': function(e){
     $(e.currentTarget).toggleClass('included');
     var pv_index = peak_viewers_set.indexOf('hist_mods');
-    var histmod_index = hist_mods.indexOf(this.toString());
+    var histmod_selected=this.toString();
+    var histmod_index = hist_mods.indexOf(histmod_selected);
 
+    //if (histmod_selected == 'DNaseI') {  // Special case, DHSs shown separately
+    //  $('#dnases_div').toggleClass('hidden');
+    //}
     peak_viewers[pv_index].data().elems[histmod_index].hidden = !$(e.currentTarget).hasClass('included');
     peak_viewers[pv_index].render();
   }
