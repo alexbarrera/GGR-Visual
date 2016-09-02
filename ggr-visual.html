@@ -74,7 +74,7 @@
         <!--<button type="button" class="toggleTranscripts">hide transcripts</button>-->
       </div>
       <div class="transcripts_container">
-        <h4>Transcripts of: <span id="gene_name_span"></span></h4>
+        <h4>Transcripts of: <span id="gene_name_transcripts"></span></h4>
           <button type="button" class="download-tpms">Download</button>
         <div class="tpms_container"></div>
       </div>
@@ -82,7 +82,7 @@
 
 <template name="histmodsSelected">
   <div class="selected_histmods">
-    <h4>Selected Histone Mods.</h4>
+    <h4>Selected</h4>
     {{#each selectedHistMods}}
       <div class="selected_histmod included">
         <span class="selected_histmod_name">{{{this}}}</span>
@@ -94,7 +94,7 @@
 
 <template name="tfsSelected">
   <div class="selected_tfs">
-    <h4>Selected Transcription Factors</h4>
+    <h4>Selected</h4>
     {{#each selectedTfs}}
       <div class="selected_tf included">
         <span class="selected_tf_name">{{{this}}}</span>
@@ -132,7 +132,7 @@
         {{> histmodsSelected}}
       </div>
       <div class="span8">
-        <h4>Histone Mods.</h4>
+        <h4>Chromatin Tracks</h4>
         <button type="button" class="download-hist-mods">Download</button>
         <div class="hist_mod_container peak-viewer"></div>
       </div>
@@ -142,13 +142,15 @@
         {{> tfsSelected}}
       </div>
       <div class="span8">
-      <h4>Transcription Factors</h4>
+        <h4>Transcription Factors Tracks</h4>
         <button type="button" class="download-tfs">Download</button>
         <div class="tf_container peak-viewer"></div>
 
-        <h4>DNase-I Hypersensitive Sites</h4>
+        <div id="dnases_div">
+        <h4>DNase-I Hypersensitive Sites Track</h4>
         <button type="button" class="download-dnases">Download</button>
         <div class="dnase_container peak-viewer"></div>
+        </div>
 
         {{#unless geneForPeakUndef}}
           {{#if isLoading }}
