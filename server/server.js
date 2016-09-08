@@ -104,6 +104,61 @@ SearchSource.defineSource('GR', function(searchText, options) {
   }
 });
 
+SearchSource.defineSource('HES2', function(searchText, options) {
+  options = options || {};
+  if(searchText) {
+    var selector = {gene_id: searchText};
+    return Tfs['HES2'].find(selector, options).fetch();
+  }
+  else {
+    return [];
+  }
+});
+
+SearchSource.defineSource('EP300', function(searchText, options) {
+  options = options || {};
+  if(searchText) {
+    var selector = {gene_id: searchText};
+    return Tfs['EP300'].find(selector, options).fetch();
+  }
+  else {
+    return [];
+  }
+});
+
+SearchSource.defineSource('CEBPB', function(searchText, options) {
+  options = options || {};
+  if(searchText) {
+    var selector = {gene_id: searchText};
+    return Tfs['CEBPB'].find(selector, options).fetch();
+  }
+  else {
+    return [];
+  }
+});
+
+SearchSource.defineSource('FOSL2', function(searchText, options) {
+  options = options || {};
+  if(searchText) {
+    var selector = {gene_id: searchText};
+    return Tfs['FOSL2'].find(selector, options).fetch();
+  }
+  else {
+    return [];
+  }
+});
+
+SearchSource.defineSource('BCL3', function(searchText, options) {
+  options = options || {};
+  if(searchText) {
+    var selector = {gene_id: searchText};
+    return Tfs['BCL3'].find(selector, options).fetch();
+  }
+  else {
+    return [];
+  }
+});
+
 SearchSource.defineSource('DNaseI', function(searchText, options) {
   options = options || {};
   if(searchText) {
