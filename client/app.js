@@ -23,8 +23,8 @@ var TransSearch = new SearchSource('gene_tpms', ['gene'], options),
   GenesSearch = new SearchSource('genes', ['gene'], options),
   ExonsSearch = new SearchSource('exons', ['gene'], options);
 
-var hist_mods = ['H3K4me1', 'H3K4me2', 'H3K4me3', 'H3K9me3', 'H3K27ac', 'DNaseI'];  //TODO: get this from DB
-var tfs = ['GR', 'EP300', 'CEBPB', 'BCL3', 'FOSL2', 'HES2'];
+var hist_mods = ['H3K4me1', 'H3K4me2', 'H3K4me3', 'H3K9me3', 'H3K27ac', 'DNaseI', 'EP300'];  //TODO: get this from DB
+var tfs = ['GR', 'CEBPB', 'BCL3', 'FOSL2', 'HES2'];
 var dnases = ['DNaseI'];
 var peak_viewers_set = ['hist_mods', 'tfs', 'dnases'];
 var peak_viewers_names = {
