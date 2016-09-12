@@ -213,3 +213,17 @@ button#play-timeslider.playing:hover:active {background-color: #8e301e  }
 .selected_tfs h4, .selected_histmods h4{
     text-align: right;
 }
+
+.overlay{
+    fill: none;
+    pointer-events: all;
+}
+
+.peakviewerMarkerLine {
+    stroke: #f0b92e;
+    stroke-width: 2px;
+}
+
+.readsArea, .exon, .tss, .intron {
+    pointer-events: none;
+}
