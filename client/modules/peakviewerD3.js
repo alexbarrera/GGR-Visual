@@ -99,6 +99,43 @@ PeakviewerD3 = function () {
       .attr("d", "M0,-10L10,0L0,10Z")
       .attr("class", "arrowHead");
 
+    var line = d3.svg.line()
+      .x(function(d) { return d[0]; })
+      .y(function(d) { return d[1]; });
+
+    svgCanvas.append("path")
+      .datum([[0,-5],[0,height+5]])
+      .attr("class", "peakviewerMarkerLine")
+      .style("display", "none")
+      .attr("d", line);
+
+    svgCanvas.append("rect")
+      .attr("class", "overlay")
+      .attr("width", width)
+      .attr("height", height)
+      .on("mouseover", function() {
+        var pvMarkers = $('.peakviewerMarkerLine');
+        pvMarkers.each(function(e) {
+          d3.select(this).style("display", null);
+        });
+
+      })
+      .on("mouseout", function() {
+        var pvMarkers = $('.peakviewerMarkerLine');
+        pvMarkers.each(function(e) {
+          d3.select(this).style("display", "none");
+        });
+      })
+      .on("mousemove", mousemove);
+
+    function mousemove() {
+      var x0 = d3.mouse(this)[0];
+      var pvMarkers = $('.peakviewerMarkerLine');
+      pvMarkers.each(function(e){
+        var ff = d3.select(this);
+        ff.attr("transform", "translate(" + x0 + ",0)");
+      });
+    }
 
   }
 
