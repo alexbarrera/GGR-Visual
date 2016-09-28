@@ -381,6 +381,9 @@ PeakviewerD3 = function () {
     tp: function (d) {
       return ((typeof d != 'undefined') && data ? data.tp = d : data.tp)
     },
+    timepoints: function (d) {
+      return ((typeof d != 'undefined') ? timepoints = d : timepoints)
+    },
     data: function (d) {
       return (d ? data = d : data)
     },
