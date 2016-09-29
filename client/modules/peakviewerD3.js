@@ -30,7 +30,7 @@ PeakviewerD3 = function () {
     svgHeight,
     defs,
     tss_coord,
-    nbins_viewer=2000,
+    nbins=2000,
     resolutions_set=[5,10,25,50,100,250],
     timepoints=[0,0.5,1,2,3,4,5,6,7,8,10,12];
 
@@ -161,7 +161,7 @@ PeakviewerD3 = function () {
 
   function renderPeakAreas(x, y) {
 
-    //var bin_size_viewer=(Math.abs(data.coords_dom[1]-data.coords_dom[0])/data.resolution)/nbins_viewer;
+    //var bin_size_viewer=(Math.abs(data.coords_dom[1]-data.coords_dom[0])/data.resolution)/nbins;
 
     var areaDrawer = d3.svg.area()
       .interpolate('basis')
@@ -384,6 +384,9 @@ PeakviewerD3 = function () {
     timepoints: function (d) {
       return ((typeof d != 'undefined') ? timepoints = d : timepoints)
     },
+    nbins: function (d) {
+      return ((typeof d != 'undefined') ? nbins = d : nbins)
+    },
     data: function (d) {
       return (d ? data = d : data)
     },
@@ -417,14 +420,13 @@ PeakviewerD3 = function () {
     render: function (c) {
       var resolutions_set = this.resolutions_set();
       var res = this.resolution();
-      this.coords_domain([this.tss() - res*1000, this.tss() + res*1000]);
+      this.coords_domain([this.tss() - res*nbins/2, this.tss() + res*nbins/2]);
       this.data().reads_dom = [0,
         d3.max(this.data().elems.filter(function(e){return !e.hidden}).map(function(ee){
           return d3.max(ee.reads.map(function(eee){
             return d3.max(eee[resolutions_set.indexOf(res)])
           }))
       }))];
-      this.coords_domain([this.tss() - res*1000, this.tss() + res*1000]);
 
       return render(c);
     }
