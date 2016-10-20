@@ -19,7 +19,7 @@ TimesliderD3 = (function(){
 
 
   var x = d3.scale.linear()
-    .domain([0, 12])
+    .domain([0, timepoints.length])
     .range([0, width])
     .clamp(true);
 
@@ -113,7 +113,7 @@ TimesliderD3 = (function(){
       $(elem).html("Stop").toggleClass("playing");
 
       timer = setInterval(function(){
-        var next_tp= (timepoints.indexOf(last_tp)+1)%12;
+        var next_tp= (timepoints.indexOf(last_tp)+1)%timepoints.length;
         slider
           .call(brush.event)
           //.transition()
