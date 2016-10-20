@@ -126,6 +126,9 @@ TimesliderD3 = (function(){
     tp: function(tp){
       return (tp != undefined ? last_tp = tp : last_tp);
     },
+    timepoints: function(tps){
+      return (tps != undefined ? timepoints = tps : timepoints);
+    },
     moveTo: function(tp){
       brushed(tp);
     }
