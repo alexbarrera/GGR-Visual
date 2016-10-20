@@ -8,25 +8,8 @@ TimesliderD3 = (function(){
     width = 600 - margin.left - margin.right,
     height = 100 - margin.bottom - margin.top,
     timepoints=[0,0.5,1,2,3,4,5,6,7,8,10,12],
-    last_tp= 0, viewers, is_looping=false, timer, container,
-    svg, slider, handle;
-
-  var q = d3.scale.threshold()
-    .domain(
-      d3.zip(timepoints, timepoints.slice(1, timepoints.length)).map(function(d){return d3.mean(d)})
-    )
-    .range(timepoints);
-
-
-  var x = d3.scale.linear()
-    .domain([0, timepoints.length])
-    .range([0, width])
-    .clamp(true);
-
-  var brush = d3.svg.brush()
-    .x(x)
-    .extent([last_tp, last_tp])
-    .on("brush", brushed);
+    last_tp= 0, is_looping=false, timer, container,
+    svg, slider, handle, brush, x, q;
 
   function brushed(v) {
     var value = (v != undefined ? v : q(brush.extent()[0]));
@@ -48,58 +31,72 @@ TimesliderD3 = (function(){
   }
 
   var render = function() {
+    q = d3.scale.threshold()
+      .domain(
+        d3.zip(timepoints, timepoints.slice(1, timepoints.length)).map(function(d){return d3.mean(d)})
+      )
+      .range(timepoints);
 
-    if (!svg){  //init
-      svg = d3.select(container).append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-      svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height / 2 + ")")
-        .call(d3.svg.axis()
-          .scale(x)
-          .orient("bottom")
-          .tickFormat(function (d) {
-            return d + "h";
-          })
-          .tickValues(timepoints)
-          .tickSize(0)
-          .tickPadding(12)
-        )
-        .select(".domain")
-        .select(function () {
-          return this.parentNode.appendChild(this.cloneNode(true));
+    x = d3.scale.linear()
+      .domain([0, timepoints[[timepoints.length-1]]])
+      .range([0, width])
+      .clamp(true);
+
+    brush = d3.svg.brush()
+      .x(x)
+      .extent([last_tp, last_tp])
+      .on("brush", brushed);
+
+
+
+    svg = d3.select(container).append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height / 2 + ")")
+      .call(d3.svg.axis()
+        .scale(x)
+        .orient("bottom")
+        .tickFormat(function (d) {
+          return d + "h";
         })
-        .attr("class", "halo");
+        .tickValues(timepoints)
+        .tickSize(0)
+        .tickPadding(12)
+      )
+      .select(".domain")
+      .select(function () {
+        return this.parentNode.appendChild(this.cloneNode(true));
+      })
+      .attr("class", "halo");
 
-      slider = svg.append("g")
-        .attr("class", "slider")
-        .call(brush);
-      slider.selectAll(".extent,.resize")
-        .remove();
+    slider = svg.append("g")
+      .attr("class", "slider")
+      .call(brush);
+    slider.selectAll(".extent,.resize")
+      .remove();
 
-      slider.select(".background")
-        .attr("height", height);
+    slider.select(".background")
+      .attr("height", height);
 
-      handle = slider.append("circle")
-        .attr("class", "handle")
-        .attr("transform", "translate(0," + height / 2 + ")")
-        .attr("r", 9);
-
-    }
-
-    last_tp = 0;
-
+    handle = slider.append("circle")
+      .attr("class", "handle")
+      .attr("transform", "translate(0," + height / 2 + ")")
+      .attr("r", 9);
   };
 
   return {
     render: function(c, vs){
       if (vs) peak_viewers=vs;
       if (c) container=c;
-      return render();
+      if (!svg) {  //init
+        render();
+      }
     },
     togglePlay: function(elem){
 
