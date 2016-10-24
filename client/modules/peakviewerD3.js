@@ -264,7 +264,7 @@ PeakviewerD3 = function () {
 
     var vals =  [[
       [0, -margin.top/2],
-      [Math.round(width/12*timepoints[data.tp]), -margin.top/2]
+      [Math.round(width/timepoints[timepoints.length-1]*timepoints[data.tp]), -margin.top/2]
     ]];
 
     var timeline = svgCanvas.selectAll(".timeline")
@@ -286,7 +286,7 @@ PeakviewerD3 = function () {
       .data([timepoints[data.tp]]);
     tl_label
       .attr("class", "timelineLabel")
-      .attr("transform", "translate(" + (Math.round(width/12*timepoints[data.tp])+4) + "," + -margin.top/2 + ")")
+      .attr("transform", "translate(" + (Math.round(width/timepoints[timepoints.length-1]*timepoints[data.tp])+4) + "," + -margin.top/2 + ")")
       .attr("dy", ".35em")
       .attr("text-anchor", "start")
       .style("color", "red")
@@ -297,7 +297,7 @@ PeakviewerD3 = function () {
     tl_label.enter()
       .append("text")
       .attr("class", "timelineLabel")
-      .attr("transform", "translate(" + (Math.round(width/12*timepoints[data.tp])+4) + "," + -margin.top/2 + ")")
+      .attr("transform", "translate(" + (Math.round(width/timepoints[timepoints.length-1]*timepoints[data.tp])+4) + "," + -margin.top/2 + ")")
       .attr("dy", ".35em")
       .attr("text-anchor", "start")
       .style("color", "red")
