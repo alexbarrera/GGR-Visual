@@ -53,7 +53,7 @@ SearchSource.defineSource('exons', function(searchText, options) {
 });
 
 
-['GR', 'HES2', 'EP300', 'GR', 'FOSL2', 'BCL3', 'cJun', 'CTCF', 'JunB'].map(function(factor){
+['GR', 'HES2', 'EP300', 'FOSL2', 'BCL3', 'cJun', 'CTCF', 'JunB'].map(function(factor){
   SearchSource.defineSource(factor, function(searchText, options) {
     options = options || {};
     if(searchText) {
