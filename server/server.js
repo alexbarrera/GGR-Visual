@@ -38,126 +38,34 @@ SearchSource.defineSource('exons', function(searchText, options) {
   }
 });
 
-SearchSource.defineSource('H3K4me1', function(searchText, options) {
-  options = options || {};
-  if(searchText) {
-    var selector = {gene_id: searchText};
-    return HistoneMods['H3K4me1'].find(selector, options).fetch();
-  }
-  else {
-    return [];
-  }
+
+['H3K4me1', 'H3K4me2', 'H3K4me3', 'H3K9me3', 'H3K27ac'].map(function(factor){
+  SearchSource.defineSource(factor, function(searchText, options) {
+    options = options || {};
+    if(searchText) {
+      var selector = {gene_id: searchText};
+      return HistoneMods[factor].find(selector, options).fetch();
+    }
+    else {
+      return [];
+    }
+  });
 });
 
-SearchSource.defineSource('H3K4me2', function(searchText, options) {
-  options = options || {};
-  if(searchText) {
-    var selector = {gene_id: searchText};
-    return HistoneMods['H3K4me2'].find(selector, options).fetch();
-  }
-  else {
-    return [];
-  }
+
+['GR', 'HES2', 'EP300', 'GR', 'FOSL2', 'BCL3', 'cJun', 'CTCF', 'JunB'].map(function(factor){
+  SearchSource.defineSource(factor, function(searchText, options) {
+    options = options || {};
+    if(searchText) {
+      var selector = {gene_id: searchText};
+      return Tfs[factor].find(selector, options).fetch();
+    }
+    else {
+      return [];
+    }
+  });
 });
 
-SearchSource.defineSource('H3K4me3', function(searchText, options) {
-  options = options || {};
-  if(searchText) {
-    var selector = {gene_id: searchText};
-    return HistoneMods['H3K4me3'].find(selector, options).fetch();
-  }
-  else {
-    return [];
-  }
-});
-
-SearchSource.defineSource('H3K27ac', function(searchText, options) {
-  options = options || {};
-  if(searchText) {
-    var selector = {gene_id: searchText};
-    return HistoneMods['H3K27ac'].find(selector, options).fetch();
-  }
-  else {
-    return [];
-  }
-});
-
-SearchSource.defineSource('H3K9me3', function(searchText, options) {
-  options = options || {};
-  if(searchText) {
-    var selector = {gene_id: searchText};
-    return HistoneMods['H3K9me3'].find(selector, options).fetch();
-  }
-  else {
-    return [];
-  }
-});
-
-SearchSource.defineSource('GR', function(searchText, options) {
-  options = options || {};
-  if(searchText) {
-    var selector = {gene_id: searchText};
-    return Tfs['GR'].find(selector, options).fetch();
-  }
-  else {
-    return [];
-  }
-});
-
-SearchSource.defineSource('HES2', function(searchText, options) {
-  options = options || {};
-  if(searchText) {
-    var selector = {gene_id: searchText};
-    return Tfs['HES2'].find(selector, options).fetch();
-  }
-  else {
-    return [];
-  }
-});
-
-SearchSource.defineSource('EP300', function(searchText, options) {
-  options = options || {};
-  if(searchText) {
-    var selector = {gene_id: searchText};
-    return Tfs['EP300'].find(selector, options).fetch();
-  }
-  else {
-    return [];
-  }
-});
-
-SearchSource.defineSource('CEBPB', function(searchText, options) {
-  options = options || {};
-  if(searchText) {
-    var selector = {gene_id: searchText};
-    return Tfs['CEBPB'].find(selector, options).fetch();
-  }
-  else {
-    return [];
-  }
-});
-
-SearchSource.defineSource('FOSL2', function(searchText, options) {
-  options = options || {};
-  if(searchText) {
-    var selector = {gene_id: searchText};
-    return Tfs['FOSL2'].find(selector, options).fetch();
-  }
-  else {
-    return [];
-  }
-});
-
-SearchSource.defineSource('BCL3', function(searchText, options) {
-  options = options || {};
-  if(searchText) {
-    var selector = {gene_id: searchText};
-    return Tfs['BCL3'].find(selector, options).fetch();
-  }
-  else {
-    return [];
-  }
-});
 
 SearchSource.defineSource('DNaseI', function(searchText, options) {
   options = options || {};
