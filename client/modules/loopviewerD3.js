@@ -31,7 +31,7 @@ LoopviewerD3 = function () {
   function init(c) {
     container = c || container;
     svgWidth = 700;
-    svgHeight = 150;
+    svgHeight = 200;
     margin = {top: 20, right: 140, bottom: 20, left: 40};
     width = svgWidth - margin.left - margin.right;
     height = svgHeight - margin.top - margin.bottom;
@@ -74,7 +74,8 @@ LoopviewerD3 = function () {
       .attr('class', 'y axis')
       .append('text')
       .attr('transform', 'rotate(-90)')
-      .attr('y', -margin.left+2)
+      .attr('y', -15)
+      .attr('x', -24)
       .attr('dy', '.71em')
       .style('text-anchor', 'end')
       .text("Log Fold Change");
@@ -121,7 +122,7 @@ LoopviewerD3 = function () {
       .attr("class", "overlay")
       .attr("width", width)
       .attr("height", height)
-      .attr("stroke", 'black')
+      //.attr("stroke", 'black')
       .on("mouseover", function() {
         var pvMarkers = $('.peakviewerMarkerLine');
         pvMarkers.each(function(e) {
@@ -176,7 +177,7 @@ LoopviewerD3 = function () {
       .ticks(3),
       yAxis = d3.svg.axis()
         .scale(y)
-        .ticks(10)
+        .ticks(2)
         .tickFormat(function(d, i){
           return y_values[d]
         })
@@ -186,8 +187,8 @@ LoopviewerD3 = function () {
     axes.selectAll(".x.axis")
       .call(xAxis);
 
-    axes.selectAll(".y.axis")
-      .call(yAxis);
+    //axes.selectAll(".y.axis")
+    //  .call(yAxis);
 
   }
 
@@ -195,9 +196,9 @@ LoopviewerD3 = function () {
     /*  Divide canvas height in as many as subareas as loops are (creating a track viewer of sorts).
         Each track area will be padded on the top to leave enough space (pad_loop_track variable) */
     var n_loops=data.loops.length,
-        pad_loop_track=Math.round(height*0.0);  // Here the padding between tracks can be adjusted
+        pad_loop_track=Math.round(height*0.1);  // Here the padding between tracks can be adjusted
 
-    var loop_track_h=Math.round((height-pad_loop_track*(n_loops))/n_loops);
+    var loop_track_h=(height-pad_loop_track*(n_loops+1))/n_loops;
 
     //var lfcDrawer  = d3.svg.line()
     //  .x(function(d) { return x(d[0]); })
@@ -225,7 +226,7 @@ LoopviewerD3 = function () {
         return x(d.start)
       })
       .attr("y", function(d){
-        return Math.max(y_loop(0), y_loop(d.lfc[data.tp]))
+        return Math.min(y_loop(0), y_loop(d.lfc[data.tp]))
       })
       .attr("width", function(d){
         return x(d.end)-x(d.start)
@@ -237,9 +238,8 @@ LoopviewerD3 = function () {
       .attr('fill', function(d){
         return (d.lfc[data.tp]>0?"#b30000":"#006d2c")
       })
-      .attr('stroke-width', "0")
       .attr("transform", function(d, i){
-        return "translate(0," + String(i*(loop_track_h)+(i+1)*pad_loop_track - margin.top +1) + ")"
+        return "translate(0," + String(i*(loop_track_h)+(i+1)*pad_loop_track) + ")"
       });
 
     loopLfcs.exit()
@@ -248,11 +248,11 @@ LoopviewerD3 = function () {
       .ease("cubic")
       .remove() ;
 
-    var loopLfcsAxes = svgCanvas.selectAll("loopLfcAxes")
+    var loopLfcsAxes = svgCanvas.selectAll(".loopLfcAxes")
       .data(data.loops);
     loopLfcsAxes.enter().append('path');
     loopLfcsAxes
-      .attr('stroke-width', 2)
+      .attr('stroke-width', 1)
       .attr('stroke', "black")
       .attr("class", "loopLfcAxes")
       //.attr("marker-start", function(){
@@ -270,61 +270,37 @@ LoopviewerD3 = function () {
         );
       })
       .attr("transform", function(d, i){
-        return "translate(0," + String(i*1*(loop_track_h)+(i+1)*pad_loop_track -1) + ")"
+        return "translate(0," + String(i*(loop_track_h)+(i+1)*pad_loop_track ) + ")"
       });
-
-    var loopLfcsAxesLabels = svgCanvas.selectAll("loopLfcAxesLabels")
-      .data(data.loops);
-    loopLfcsAxes.enter().append('path');
-    loopLfcsAxes
-      .attr('stroke-width', 2)
-      .attr('stroke', "black")
-      .attr("class", "loopLfcAxes")
-      //.attr("marker-start", function(){
-      //    return "url(#segmentEnd)"
-      //  })
-      .attr('d', function (d, i) {
-        return lfcDrawer(
-          [
-            [d.start, 0],
-            [d.end, 0],
-            [d.start, 0],
-            [d.start, data.lfc_range[0]],
-            [d.start, data.lfc_range[1]]
-          ]
-        );
+    var labels = [data.lfc_range[1], 0, data.lfc_range[0]],
+        label_index = d3.range(data.loops.length).map(function(x){return [x,x,x];}).reduce(function(a, x){return a.concat(x)},[]);
+    var loopLfcsAxesLabels = svgCanvas.selectAll(".loopLfcAxesLabels")
+      .data(
+          data.loops.map(function(x){return [x,x,x];}).reduce(function(a, x){return a.concat(x)},[])
+      );
+    loopLfcsAxesLabels.enter().append('text');
+    loopLfcsAxesLabels
+      .attr('class', 'loopLfcAxesLabels')
+      .text(function(d, i){
+        return labels[i%labels.length];
+      })
+      .attr("y",function(d,i){
+        return y_loop(labels[i%labels.length]);
+      })
+      .attr("x", function(d,i){
+        var x_= x(d.start)-8;
+        return (i%labels.length==2?x_-4:x_);
       })
       .attr("transform", function(d, i){
-        return "translate(0," + String(i*1*(loop_track_h)+(i+1)*pad_loop_track -1) + ")"
+        var loop_track = label_index[i];
+
+        //(i<labels.length?0:(i<2*labels.length?1:2));
+        return "translate(0," + String(loop_track*(loop_track_h)+(loop_track+1)*pad_loop_track -1) + ")"
       });
 
     loopLfcsAxes.exit().remove();
 
   }
-
-  //var loop_axis = loopLfcs.append("g")
-  //  .attr("class", "x axis")
-  //  .attr("transform", function(d, i){
-  //    return "translate(0," + String(i*(loop_track_h)+(i+1)*pad_loop_track)+ ")"
-  //  })
-  //  .attr('x', 100);
-  //
-  //loop_axis.append('g')
-  //  .attr('class', 'y axis')
-  //  .append('text')
-  //  .attr('transform', 'rotate(-90)')
-  //  .attr('dy', '.71em')
-  //  .attr('y', 10)
-  //  .style('text-anchor', 'end')
-  //  .text("Log Fold Change");
-  //var loops_axes = d3.svg.axis();
-  //loops_axes
-  //  .scale(y_loop)
-  //  .orient("right")
-  //  .ticks(2);
-  //
-  //axes.selectAll(".y.axis")
-  //  .call(loops_axes);
 
 
   function render(c) {
@@ -392,17 +368,26 @@ LoopviewerD3 = function () {
               {
                 start: 81160000,
                 end: 81490000,
-                lfc: [-3,3] //[0.497053951305289, -0.527691368792846, -0.737065235509091, -0.514116094095865] //0.497053951305289
+                lfc: [3, -1, -0.737065235509091, -0.514116094095865] //0.497053951305289
+                //lfc: [0.497053951305289, -0.527691368792846, -0.737065235509091, -0.514116094095865] //0.497053951305289
               },
               {
                 start: 81430000,
                 end: 81485000,
-                lfc:  [-3,-3] //[-0.583624508533773, -0.518561148080135, -0.567959408652864, -0.735083916064619]
+                lfc:  [-3,-3, -0.567959408652864, -0.735083916064619]
+                //lfc:  [-0.583624508533773, -0.518561148080135, -0.567959408652864, -0.735083916064619]
               },
               {
                 start: 81435000,
                 end: 81485000,
-                lfc: [-3,3] // [-0.521700174591643, -0.420220078987058, -0.560071110630041, -0.491930560198152]
+                lfc: [3, 2, -0.560071110630041, -0.491930560198152]
+                //lfc: [-0.521700174591643, -0.420220078987058, -0.560071110630041, -0.491930560198152]
+              },
+              {
+                start: 81235000,
+                end: 81445000,
+                lfc: [-0.431, -2, -0.560071110630041, -0.491930560198152]
+                //lfc: [-0.521700174591643, -0.420220078987058, -0.560071110630041, -0.491930560198152]
               }
             ]
           }

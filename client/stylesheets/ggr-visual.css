@@ -236,6 +236,11 @@ button#play-timeslider.playing:hover:active {background-color: #8e301e  }
     stroke-width: 4;
 }
 
-.loopLfc, .loopLfcAxes{
+line, .loopLfc, .loopLfcAxes{
     shape-rendering: crispEdges;
+}
+
+.loopLfcAxesLabels{
+    font-size: 10px;
+    alignment-baseline: middle;
 }
