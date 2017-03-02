@@ -23,8 +23,8 @@ var TransSearch = new SearchSource('gene_tpms', ['gene'], options),
   GenesSearch = new SearchSource('genes', ['gene'], options),
   ExonsSearch = new SearchSource('exons', ['gene'], options);
 
-var hist_mods = ['H3K4me1' , 'H3K4me2', 'H3K4me3', 'H3K9me3', 'H3K27ac', 'EP300', 'DNaseI'];  //TODO: get this from DB
-var tfs = ['GR', 'CEBPB', 'BCL3', 'FOSL2', 'HES2', 'cJun', 'CTCF', 'JunB'];
+var hist_mods = ['H3K4me3', 'DNaseI'];  //TODO: get this from DB
+var tfs = ['GR'];
 var dnases = ['DNaseI'];
 var peak_viewers_set = ['hist_mods', 'tfs', 'dnases'];
 var peak_viewers_names = {
@@ -327,3 +327,16 @@ Template.tfsSelected.events({
     peak_viewers[pv_index].render();
   }
 });
+
+Template.searchBox.rendered = function(){
+  $('.loop-viewer').each(function(){
+    var tp=0;
+    var loop_viewer = LoopviewerD3();
+    loop_viewer.render(this);
+    setTimeout(function(){
+      tp = (tp+1) % 4;
+      loop_viewer.tp(tp);
+      loop_viewer.render()
+    }, 2000);
+  });
+};

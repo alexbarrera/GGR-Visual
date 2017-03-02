@@ -227,3 +227,15 @@ button#play-timeslider.playing:hover:active {background-color: #8e301e  }
 .readsArea, .exon, .tss, .intron {
     pointer-events: none;
 }
+#segmentEnd{
+    stroke-width: 2;
+    stroke: "red";
+}
+
+.loopLfc:hover{
+    stroke-width: 4;
+}
+
+.loopLfc, .loopLfcAxes{
+    shape-rendering: crispEdges;
+}
