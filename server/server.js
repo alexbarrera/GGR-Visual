@@ -39,7 +39,7 @@ SearchSource.defineSource('exons', function(searchText, options) {
 });
 
 
-['H3K4me3'].map(function(factor){
+['H3K4me1', 'H3K4me2', 'H3K4me3', 'H3K9me3', 'H3K27ac'].map(function(factor){
   SearchSource.defineSource(factor, function(searchText, options) {
     options = options || {};
     if(searchText) {
@@ -53,7 +53,7 @@ SearchSource.defineSource('exons', function(searchText, options) {
 });
 
 
-['GR'].map(function(factor){
+['GR', 'HES2', 'EP300', 'FOSL2', 'BCL3', 'cJun', 'CTCF', 'JunB'].map(function(factor){
   SearchSource.defineSource(factor, function(searchText, options) {
     options = options || {};
     if(searchText) {
