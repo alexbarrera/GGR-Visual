@@ -104,7 +104,7 @@ button.displayToggle:hover {
     color: white;
 }
 
-.peak-viewer .axis, .slider_container .axis{
+.loop-viewer .axis, .peak-viewer .axis, .slider_container .axis{
     font: 10px sans-serif;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -224,7 +224,7 @@ button#play-timeslider.playing:hover:active {background-color: #8e301e  }
     stroke-width: 2px;
 }
 
-.readsArea, .exon, .tss, .intron {
+.loopLfcAxesLabels, .loopLfcAxes, .loopLfc, .readsArea, .exon, .tss, .intron {
     pointer-events: none;
 }
 #segmentEnd{
@@ -241,6 +241,6 @@ line, .loopLfc, .loopLfcAxes{
 }
 
 .loopLfcAxesLabels{
-    font-size: 10px;
+    font-size: 8px;
     alignment-baseline: middle;
 }

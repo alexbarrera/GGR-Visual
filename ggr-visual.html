@@ -42,7 +42,6 @@
 <template name="searchBox">
   <label id="label-search" for="search-box">Search:</label>
   <input type="text" id="search-box" placeholder="search gene" autofocus>
-  <div class="loops_container loop-viewer"></div>
 </template>
 
 <template name="searchResult">
@@ -153,6 +152,12 @@
         <div class="dnase_container peak-viewer"></div>
         </div>
 
+        <div id="loops_div">
+        <h4>Hi-C Loops Track</h4>
+        <button type="button" class="download-loops">Download</button>
+        <div class="loops_container loop-viewer"></div>
+        </div>
+        <!--<div class="loops_container loop-viewer"></div>-->
         {{#unless geneForPeakUndef}}
           {{#if isLoading }}
             {{> loader}}

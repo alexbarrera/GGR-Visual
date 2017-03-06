@@ -78,6 +78,27 @@ SearchSource.defineSource('DNaseI', function(searchText, options) {
   }
 });
 
+SearchSource.defineSource('loops', function(searchValues, options) {
+  options = options || {};
+  if (searchValues){
+    searchValues = JSON.parse(searchValues);
+    var selector = {
+      $and: [
+        { anchor1_chr: searchValues.chrom},
+        { anchor2_chr: searchValues.chrom},
+        { anchor2_end: {$gt: searchValues.coord1}},
+        { anchor1_start: {$lt: searchValues.coord2}}
+    ]
+    };
+    return Loops.find(selector, options).fetch();
+
+  }
+  else{
+    return []
+  }
+
+});
+
 function buildRegExp(searchText) {
   var parts = searchText.trim().split(/[ :,]+/);
   return new RegExp("(" + parts.join('|') + ")", "ig");

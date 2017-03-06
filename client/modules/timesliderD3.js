@@ -8,6 +8,7 @@ TimesliderD3 = (function(){
     width = 600 - margin.left - margin.right,
     height = 100 - margin.bottom - margin.top,
     timepoints=[0,0.5,1,2,3,4,5,6,7,8,10,12],
+    loop_timepoints=[0, 1, 4, 8, 12], loops_viewer,
     last_tp= 0, is_looping=false, timer, container,
     svg, slider, handle, brush, x, q;
 
@@ -27,6 +28,11 @@ TimesliderD3 = (function(){
       e.tp(timepoints.indexOf(value));
       e.render();
     });
+
+    if (loop_timepoints.indexOf(value)>-1){
+      loops_viewer.tp(loop_timepoints.indexOf(value));
+      loops_viewer.render();
+    }
 
   }
 
@@ -91,9 +97,10 @@ TimesliderD3 = (function(){
   };
 
   return {
-    render: function(c, vs){
-      if (vs) peak_viewers=vs;
+    render: function(c, vs, lv){
       if (c) container=c;
+      if (vs) peak_viewers=vs;
+      if (lv) loops_viewer=lv;
       if (!svg) {  //init
         render();
       }

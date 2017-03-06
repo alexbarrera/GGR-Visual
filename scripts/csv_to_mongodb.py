@@ -18,7 +18,7 @@ def main():
     args = parser.parse_args()
     if args.noheaderline:
         headers = args.headers
-        
+
     client = MongoClient(args.clienturi)
     db = client[args.db]
     
@@ -32,6 +32,14 @@ def main():
                 headers = l.split(args.delimiter)
                 continue
             fields = l.split(args.delimiter)
+            for fi, f in enumerate(fields):
+                try:
+                    fields[fi]=float(f)
+                except ValueError:
+                    try:
+                        fields[fi]=int(f)
+                    except ValueError:
+                        pass
             db[args.collection].insert_one(dict(zip(headers, fields)))
             
 if __name__=='__main__':

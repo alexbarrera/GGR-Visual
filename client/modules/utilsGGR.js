@@ -60,6 +60,20 @@ utilsGGR = (function(){
     }
     return out;
   }
+
+  function loop_wrapper(l){
+    var lfcs=[0], tps=[0.5,1,2,3,4,5,6,7,8,10,12];
+    for (var t=1; t<=tps.length; t++){
+      if (l.hasOwnProperty(tps[t]))
+        lfcs.push(l[tps[t]]);
+        delete l[tps[t]]
+    }
+    l.lfc = lfcs;
+    l.start = Math.round((l.anchor1_start + l.anchor1_end)/2);
+    l.end = Math.round((l.anchor2_start + l.anchor2_end)/2);
+    return l
+  }
+
   return {
     tpmToJson : function(o){
       return tpmToJson(o);
@@ -75,6 +89,9 @@ utilsGGR = (function(){
     },
     decompress_array: function(a){
       return decompress_array(a);
+    },
+    loopWrapper: function(l){
+      return loop_wrapper(l)
     }
   }
 })();

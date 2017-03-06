@@ -33,6 +33,7 @@ var peak_viewers_names = {
   dnases: dnases
 };
 
+var LoopsSearch = new SearchSource('loops', ['anchor1_chr', 'anchor2_chr', 'anchor1_start', 'anchor2_end'], options);
 
 //var HistModSearches = hist_mods.map(function(e){return new SearchSource(e, ['gene_id'], options)});
 //var TfSearches = tfs.map(function(e){return new SearchSource(e, ['gene_id'], options)});
@@ -71,7 +72,9 @@ Template.searchResult.rendered = function(){
 
 var initial_values = {
   tp: 0,
-  resolution: 5
+  resolution: 5,
+  window_half_size: 1000,
+  loops_lfc_range: [-2,2]
 };
 
 var updateGeneSelected = function(gene_name){
@@ -85,7 +88,7 @@ var updateGeneSelected = function(gene_name){
 
     e.tss(tss);
     e.data({
-      coords_dom: [tss-initial_values.resolution*1000, tss+initial_values.resolution*1000],
+      coords_dom: [tss-initial_values.resolution*initial_values.window_half_size, tss+initial_values.resolution*initial_values.window_half_size],
       exons: exons.exons,
       strand: exons.strand,
       tp: initial_values.tp,
@@ -109,6 +112,17 @@ var updateGeneSelected = function(gene_name){
   }
 
   Session.set('peaksGene', gene_name);
+
+  LoopsSearch.search(
+    JSON.stringify({
+      chrom: exons.chrom,
+      coord1: peak_viewers[0].coords_domain()[0],
+      coord2: peak_viewers[0].coords_domain()[1]
+    })
+  );
+
+  loopviewerD3.chrom(exons.chrom);
+  loopviewerD3.tp(initial_values.tp);
 };
 
 Template.searchResult.events({
@@ -177,7 +191,7 @@ Template.genes_chart.events({
 
 });
 
-var peak_viewers = [];
+var peak_viewers = [], loopviewerD3;
 Template.peak_vizs.rendered = function(){
   var viewers_sel=$('.peak-viewer');
   viewers_sel.each(function(){
@@ -186,7 +200,12 @@ Template.peak_vizs.rendered = function(){
   peak_viewers.forEach(function(e, i){
     e.container(viewers_sel[i].getAttribute("class").split(" ").map(function(e){return "."+e}).join(""))
   });
-  TimesliderD3.render(".slider_container", peak_viewers);
+
+  // New loops viewer
+  loopviewerD3 = LoopviewerD3();
+
+  TimesliderD3.render(".slider_container", peak_viewers, loopviewerD3);
+
 };
 
 Template.peak_vizs.events({
@@ -199,12 +218,23 @@ Template.peak_vizs.events({
   "click .download-dnases": function() {
     downloadSVG('dnase_container');
   },
+  "click .download-loops": function() {
+    downloadSVG('loops_container');
+  },
   "change #resolution": function() {
     var res = parseInt(event.target.value);
     peak_viewers.forEach(function(e){
       e.resolution(res);
       e.render()
     });
+
+    LoopsSearch.search(
+      JSON.stringify({
+        chrom: loopviewerD3.chrom(),
+        coord1: peak_viewers[0].coords_domain()[0],
+        coord2: peak_viewers[0].coords_domain()[1]
+      })
+    );
   },
   "click #play-timeslider": function() {
     TimesliderD3.togglePlay("#play-timeslider")
@@ -214,7 +244,9 @@ Template.peak_vizs.events({
 Template.peak_vizs.helpers({
   isLoading: function(){
     return Object.keys(searchHandlers).map(function(vs){
-        return searchHandlers[vs].map(function(e){return e.getStatus().loading}).some(function(e){return e})
+        return searchHandlers[vs].map(
+            function(e){return e.getStatus().loading}
+          ).some(function(e){return e}) || LoopsSearch.getStatus().loading;
     }).some(function(e){return e});
   },
   geneForPeakUndef: function(){
@@ -251,6 +283,13 @@ Template.peak_vizs.helpers({
 
       peak_viewers[pv_index].render()
     });
+
+    // Loops
+    loopviewerD3.data(LoopsSearch.getData().map(function(x){return utilsGGR.loopWrapper(x)}));
+    loopviewerD3.lfc_range(initial_values.loops_lfc_range);
+    loopviewerD3.coords_domain(peak_viewers[0].coords_domain());
+
+    loopviewerD3.render('.loop-viewer');
   },
   getGene: function(){return Session.get('peaksGene')}
 });
@@ -327,16 +366,16 @@ Template.tfsSelected.events({
     peak_viewers[pv_index].render();
   }
 });
-
-Template.searchBox.rendered = function(){
-  $('.loop-viewer').each(function(){
-    var tp=0;
-    var loop_viewer = LoopviewerD3();
-    loop_viewer.render(this);
-    setTimeout(function(){
-      tp = (tp+1) % 4;
-      loop_viewer.tp(tp);
-      loop_viewer.render()
-    }, 2000);
-  });
-};
+//
+//Template.searchBox.rendered = function(){
+//  $('.loop-viewer').each(function(){
+//    var tp=0;
+//    var loop_viewer = LoopviewerD3();
+//    loop_viewer.render(this);
+//    setTimeout(function(){
+//      tp = (tp+1) % 4;
+//      loop_viewer.tp(tp);
+//      loop_viewer.render()
+//    }, 2000);
+//  });
+//};
