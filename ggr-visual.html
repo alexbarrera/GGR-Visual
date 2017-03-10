@@ -145,8 +145,8 @@
         {{> histmodsSelected}}
       </div>
       <div class="span8">
-        <span><button type="button" class="download-hist-mods">Download</button>Chromatin Tracks</span>
-
+        <h4>Chromatin Tracks</h4>
+        <button type="button" class="download-hist-mods">Download</button>
         <div class="hist_mod_container peak-viewer"></div>
       </div>
     </div>
@@ -165,21 +165,25 @@
         <!--<div class="dnase_container peak-viewer"></div>-->
         <!--</div>-->
 
-        <div id="loops_div">
+      </div>
+    </div>
+    <div class="row-fluid display_col hidden">
+      <div class="span4">
+      </div>
+      <div class="span8">
         <h4>Hi-C Loops Track</h4>
         <button type="button" class="download-loops">Download</button>
         <div class="loops_container loop-viewer"></div>
-        </div>
-        <!--<div class="loops_container loop-viewer"></div>-->
-        {{#unless geneForPeakUndef}}
-          {{#if isLoading }}
-            {{> loader}}
-          {{else}}
-            {{render}}
-          {{/if}}
-        {{/unless}}
       </div>
+      {{#unless geneForPeakUndef}}
+        {{#if isLoading }}
+          {{> loader}}
+        {{else}}
+          {{render}}
+        {{/if}}
+      {{/unless}}
     </div>
+
 
 
 

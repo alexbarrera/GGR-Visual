@@ -23,12 +23,19 @@
     height: 15px;
 }
 
-.matched_gene, .selected_gene, .selected_histmod, .selected_tf{
+.matched_gene, .selected_gene{
     /*width: 600px;*/
     border-bottom: 1px solid #eee;
     padding: 8px 4px;
     font-weight: 400;
 }
+
+.selected_histmod, .selected_tf{
+      /*width: 600px;*/
+      border-bottom: 1px solid #eee;
+      padding: 4px 4px;
+      font-weight: 400;
+  }
 
 .matched_gene:hover {
     background: #f0b92e;
