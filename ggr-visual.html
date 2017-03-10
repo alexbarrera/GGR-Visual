@@ -25,6 +25,19 @@
     </div>
     {{> peak_vizs}}
   </div>
+  <footer class="footer">
+    <div class="container-fluid">
+      <p class="left">
+        <img src="ggr.jpg">
+        <span class="text-muted">Genomics of Gene Regulation</span>
+      </p>
+      <p class="right">
+        <img src="dukeuni.svg">
+        <img src="dukeunilogo.png">
+        <a class="text-muted" href="http://reddylab.org" target="_blank">the reddy lab</a>
+      </p>
+    </div>
+  </footer>
 </body>
 
 <template name="genesSelected">
@@ -110,20 +123,20 @@
     <div class="col-md-8 col-md-offset-4 col-lg-8 col-lg-offset-4 display_col hidden">
       <h2>ChIP peaks</h2>
       <h4>Gene: {{{getGene}}}</h4>
+      <div>
+        <label for="resolution">Window Len. / Resolution</label>
+        <select id="resolution">
+          <option value="5" selected>10 kb / 5 bp</option>
+          <option value="10">20 kb / 10 bp</option>
+          <option value="25">50 kb / 25 bp</option>
+          <option value="50">100 kb/ 50 bp</option>
+          <option value="100">200 kb / 100 bp</option>
+          <option value="250">500 kb / 250 bp</option>
+        </select>
+      </div>
       <h4>Time of 100 nM DEX treatment (hs) | <button name="play-timeslider" id="play-timeslider">Play</button></h4>
       <div class="slider_container"></div>
 
-      <div>
-      <label for="resolution">Window Len. / Resolution</label>
-      <select id="resolution">
-        <option value="5" selected>10 kb / 5 bp</option>
-        <option value="10">20 kb / 10 bp</option>
-        <option value="25">50 kb / 25 bp</option>
-        <option value="50">100 kb/ 50 bp</option>
-        <option value="100">200 kb / 100 bp</option>
-        <option value="250">500 kb / 250 bp</option>
-      </select>
-      </div>
     </div>
   </div>
 
@@ -132,8 +145,8 @@
         {{> histmodsSelected}}
       </div>
       <div class="span8">
-        <h4>Chromatin Tracks</h4>
-        <button type="button" class="download-hist-mods">Download</button>
+        <span><button type="button" class="download-hist-mods">Download</button>Chromatin Tracks</span>
+
         <div class="hist_mod_container peak-viewer"></div>
       </div>
     </div>
@@ -146,11 +159,11 @@
         <button type="button" class="download-tfs">Download</button>
         <div class="tf_container peak-viewer"></div>
 
-        <div id="dnases_div">
-        <h4>DNase-I Hypersensitive Sites Track</h4>
-        <button type="button" class="download-dnases">Download</button>
-        <div class="dnase_container peak-viewer"></div>
-        </div>
+        <!--<div id="dnases_div">-->
+        <!--<h4>DNase-I Hypersensitive Sites Track</h4>-->
+        <!--<button type="button" class="download-dnases">Download</button>-->
+        <!--<div class="dnase_container peak-viewer"></div>-->
+        <!--</div>-->
 
         <div id="loops_div">
         <h4>Hi-C Loops Track</h4>

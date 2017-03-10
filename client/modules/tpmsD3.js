@@ -91,7 +91,7 @@ TpmsD3 = function(){
 
   function init(container_id){
     svgWidth = 800;
-    svgHeight = 500;
+    svgHeight = 300;
     margin = {top: 20, right: 250, bottom: 40, left: 60};
     chartWidth = svgWidth - margin.left - margin.right;
     chartHeight = svgHeight - margin.top - margin.bottom;
@@ -153,7 +153,7 @@ TpmsD3 = function(){
       .ticks(4)
       .tickFormat(d3.format(",.f"))
       .tickSubdivide(0),
-      yAxis = d3.svg.axis().scale(y).orient('left').tickPadding(5);
+      yAxis = d3.svg.axis().scale(y).orient('left').ticks(6).tickPadding(5);
 
     axes.selectAll(".x.axis")
       .call(xAxis);
