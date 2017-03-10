@@ -20,7 +20,6 @@ LoopviewerD3 = function () {
     svgWidth,
     svgHeight,
     defs,
-    resolutions_set=[5,10,25,50,100,250],
     timepoints=[0,1,4,8,12],
     chrom,
     tp
@@ -30,12 +29,10 @@ LoopviewerD3 = function () {
   function init(c) {
     container = c || container;
     svgWidth = 700;
-    svgHeight = 250;
+    svgHeight = 200;
     margin = {top: 20, right: 140, bottom: 20, left: 70};
     width = svgWidth - margin.left - margin.right;
     height = svgHeight - margin.top - margin.bottom;
-
-    //c=".hist_mod_container";
 
     svgCanvas = d3.select(container).append("svg")
       .attr("width", width + margin.left + margin.right)
@@ -73,8 +70,8 @@ LoopviewerD3 = function () {
       .attr('class', 'y axis')
       .append('text')
       .attr('transform', 'rotate(-90)')
-      .attr('y', -15)
-      .attr('x', -24)
+      .attr('y', -50)
+      .attr('x', -40)
       .attr('dy', '.71em')
       .style('text-anchor', 'end')
       .text("Log Fold Change");
@@ -117,6 +114,58 @@ LoopviewerD3 = function () {
       .style("display", "none")
       .attr("d", line);
 
+    var loopsLegendGradient = defs.selectAll('.loopsLegendGradient')
+      .data([[1]]);
+    loopsLegendGradient
+      .enter()
+      .append("linearGradient");
+    loopsLegendGradient
+      .attr('class', 'loopsLegendGradient')
+      .attr("id", "loops-legend-gradient")
+      .attr("x1", "0")
+      .attr("y1", "0")
+      .attr("x2", "0")
+      .attr("y2",  height)
+      .attr("gradientUnits", "userSpaceOnUse");
+
+    var loopsGradientStop = loopsLegendGradient.selectAll('.loopsGradientStop')
+      .data([
+        ["0%", "darkred"],
+        ["25%", "red"],
+        ["50%", "white"],
+        ["75%", "blue"],
+        ["100%", "darkblue"]
+      ]);
+    loopsGradientStop.enter().append("stop");
+    loopsGradientStop
+      .attr('class', 'loopsGradientStop')
+      .attr("offset", function(d){
+        return d[0]
+      })
+      .attr("stop-color", function(d){
+        return d[1]
+      })
+      .attr("stop-opacity", 1);
+
+    var loopLegend = svgCanvas.append('g');
+    loopLegend.append("rect")
+      .attr("width", 20)
+      .attr("height", height)
+      .attr('x', -margin.left/2)
+      .attr('y', 0)
+      .attr('fill', "url(#loops-legend-gradient)");
+    loopLegend.append("text")
+      .attr('class', 'loopsLegendText')
+      .attr('x', -margin.left/2+6)
+      .attr('y', margin.top/2+2)
+      .text(data.lfc_range[1]);
+    loopLegend.append("text")
+      .attr('class', 'loopsLegendText')
+      .attr('x', -margin.left/2+2)
+      .attr('y', height-margin.top/2)
+      .text(data.lfc_range[0]);
+
+
     svgCanvas.append("rect")
       .attr("class", "overlay")
       .attr("width", width)
@@ -146,26 +195,30 @@ LoopviewerD3 = function () {
       });
     }
 
-    //gradient = svgCanvas.append("defs")
-    //  .append("linearGradient")
-    //  .attr("id", "gradient")
-    //  .attr("x1", "0%")
-    //  .attr("y1", "0%")
-    //  .attr("x2", "0%")
-    //  .attr("y2", (100/data.length) + "%")
-    //  .attr("spreadMethod", "repeat")
-    //  .attr("gradientUnits", "userSpaceOnUse");
-    //
-    //gradient.append("stop")
-    //  .attr("offset", data.lfc_range[0])
-    //  .attr("stop-color", "#d7191c")
-    //  .attr("stop-opacity", 1);
-    //
-    //
-    //gradient.append("stop")
-    //  .attr("offset", data.lfc_range[1])
-    //  .attr("stop-color", "#1a9641")
-    //  .attr("stop-opacity", 1);
+    var loopsGradient = defs.selectAll('.loopsGradient')
+      .data([[1]]);
+    loopsGradient
+      .enter()
+      .append("linearGradient");
+    loopsGradient.attr('class', 'loopsGradient');
+    var gradientStops = loopsGradient.selectAll('.loopsGradientStop')
+      .data([
+        ["0%", "darkred"],
+        ["25%", "red"],
+        ["50%", "white"],
+        ["75%", "blue"],
+        ["100%", "darkblue"]
+      ]);
+    gradientStops.enter().append("stop");
+    gradientStops
+      .attr('class', 'loopsGradientStop')
+      .attr("offset", function(d){
+        return d[0]
+      })
+      .attr("stop-color", function(d){
+        return d[1]
+      })
+      .attr("stop-opacity", 1);
   }
 
   function renderAxis(x, y, y_values) {
@@ -217,25 +270,45 @@ LoopviewerD3 = function () {
         return y_loop(d[1]);
       });
 
+    var gradient = defs.selectAll('.loopsGradient')
+      .data([y_loop(data.lfc_range[0])]);
+    gradient.enter().append('linearGradient');
+    gradient
+      .attr('class', 'loopsGradient')
+      .attr("id", "loops-gradient")
+      .attr("x1", "0")
+      .attr("y1", "0")
+      .attr("x2", "0")
+      .attr("y2",  function(d){
+        return d;
+      })
+      .attr("gradientUnits", "userSpaceOnUse");
+
     var loopLfcs = svgCanvas.selectAll(".loopLfc")
       .data(data);
     loopLfcs.enter().append('rect');
     loopLfcs
+      .transition()
+      .duration(300)
+      .ease("cubic")
       .attr("x", function(d){
         return x(d.start)
       })
       .attr("y", function(d){
         return Math.min(y_loop(0), y_loop(d.lfc[tp]))
+        //return Math.min(y_loop(1), y_loop(d.lfc[tp]))
       })
       .attr("width", function(d){
         return x(d.end)-x(d.start)
       })
       .attr("height", function(d){
         return Math.abs(y_loop(0) - y_loop(d.lfc[tp]))
+        //return Math.abs(y_loop(-1))
       })
       .attr("class", "loopLfc")
       .attr('fill', function(d){
-        return (d.lfc[tp]>0?"#b30000":"#006d2c")
+        //return (d.lfc[tp]>0?"#b30000":"#006d2c")
+        return "url(#loops-gradient)";
       })
       .attr("transform", function(d, i){
         return "translate(0," + String(i*(loop_track_h)+(i+1)*pad_loop_track) + ")"
@@ -245,7 +318,7 @@ LoopviewerD3 = function () {
 
     loopLfcs.exit()
       .transition()
-      .duration(500)
+      .duration(300)
       .ease("cubic")
       .remove() ;
 
@@ -265,9 +338,17 @@ LoopviewerD3 = function () {
           [
             [d.start, 0],
             [d.end, 0],
-            [d.end, data.lfc_range[0]/2],
+            [d.end, data.lfc_range[0]],
+            [d.end-2500, data.lfc_range[0]],
+            [d.end+2500, data.lfc_range[0]],
+            [d.end, data.lfc_range[0]],
+            [d.end, data.lfc_range[1]],
+            //[d.end, data.lfc_range[0]/2],
             [d.end, 0],
             [d.start, 0],
+            [d.start, data.lfc_range[0]],
+            [d.start-2500, data.lfc_range[0]],
+            [d.start+2500, data.lfc_range[0]],
             [d.start, data.lfc_range[0]],
             [d.start, data.lfc_range[1]]
           ]
@@ -277,35 +358,6 @@ LoopviewerD3 = function () {
         return "translate(0," + String(i*(loop_track_h)+(i+1)*pad_loop_track ) + ")"
       });
     loopLfcsAxes.exit().remove();
-
-    var labels = [data.lfc_range[1], 0, data.lfc_range[0]],
-        label_index = d3.range(data.length).map(function(x){return [x,x,x];}).reduce(function(a, x){return a.concat(x)},[]);
-    var loopLfcsAxesLabels = svgCanvas.selectAll(".loopLfcAxesLabels")
-      .data(
-          data.map(function(x){return [x,x,x];}).reduce(function(a, x){return a.concat(x)},[])
-      );
-    loopLfcsAxesLabels.enter().append('text');
-    loopLfcsAxesLabels
-      .attr('class', 'loopLfcAxesLabels')
-      .attr('clip-path', 'url(#viewer-clip-loops)')
-      .text(function(d, i){
-        return labels[i%labels.length];
-      })
-      .attr("y",function(d,i){
-        return y_loop(labels[i%labels.length]);
-      })
-      .attr("x", function(d,i){
-        var x_= x(d.start)-8;
-        return (i%labels.length==2?x_-3:x_);
-      })
-      .attr("transform", function(d, i){
-        var loop_track = label_index[i];
-
-        //(i<labels.length?0:(i<2*labels.length?1:2));
-        return "translate(0," + String(loop_track*(loop_track_h)+(loop_track+1)*pad_loop_track -1) + ")"
-      });
-
-    loopLfcsAxesLabels.exit().remove();
 
   }
 

@@ -89,7 +89,7 @@ DegsD3 = (function(){
 
   function init(container_id){
     svgWidth = 800;
-    svgHeight = 500;
+    svgHeight = 300;
     margin = {top: 20, right: 200, bottom: 40, left: 60};
     chartWidth = svgWidth - margin.left - margin.right;
     chartHeight = svgHeight - margin.top - margin.bottom;

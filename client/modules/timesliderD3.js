@@ -4,9 +4,9 @@
 
 TimesliderD3 = (function(){
 
-  var margin = {top: 10, right: 20, bottom: 10, left: 20},
+  var margin = {top: 0, right: 20, bottom: 0, left: 20},
     width = 600 - margin.left - margin.right,
-    height = 100 - margin.bottom - margin.top,
+    height = 50 - margin.bottom - margin.top,
     timepoints=[0,0.5,1,2,3,4,5,6,7,8,10,12],
     loop_timepoints=[0, 1, 4, 8, 12], loops_viewer,
     last_tp= 0, is_looping=false, timer, container,
@@ -32,6 +32,14 @@ TimesliderD3 = (function(){
     if (loop_timepoints.indexOf(value)>-1){
       loops_viewer.tp(loop_timepoints.indexOf(value));
       loops_viewer.render();
+    }else{
+      for (var tp_idx=0; tp_idx<loop_timepoints.length-1; tp_idx++){
+        if (loop_timepoints[tp_idx]<value && loop_timepoints[tp_idx+1]>value){
+          loops_viewer.tp(tp_idx);
+          loops_viewer.render();
+          break;
+        }
+      }
     }
 
   }

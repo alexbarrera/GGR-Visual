@@ -26,7 +26,7 @@ var TransSearch = new SearchSource('gene_tpms', ['gene'], options),
 var hist_mods = ['H3K4me1' , 'H3K4me2', 'H3K4me3', 'H3K9me3', 'H3K27ac', 'EP300', 'DNaseI'];  //TODO: get this from DB
 var tfs = ['GR', 'CEBPB', 'BCL3', 'FOSL2', 'HES2', 'cJun', 'CTCF', 'JunB'];
 var dnases = ['DNaseI'];
-var peak_viewers_set = ['hist_mods', 'tfs', 'dnases'];
+var peak_viewers_set = ['hist_mods', 'tfs']; // , 'dnases'
 var peak_viewers_names = {
   hist_mods: hist_mods,
   tfs: tfs,
@@ -74,7 +74,7 @@ var initial_values = {
   tp: 0,
   resolution: 5,
   window_half_size: 1000,
-  loops_lfc_range: [-2,2]
+  loops_lfc_range: [-1,1]
 };
 
 var updateGeneSelected = function(gene_name){
@@ -256,12 +256,13 @@ Template.peak_vizs.helpers({
     var gene_name = Session.get('peaksGene');
 
     peak_viewers_set.map(function(pv, pv_index){
+      var nfactors=searchHandlers[pv].length;
       searchHandlers[pv].map(function(sh, i){
         var reads = sh.getData({})
           .filter(function (a) {return gene_name.indexOf(a.gene_id) > 0;})
           .map(function (e) {e.reads = JSON.parse(e.reads);return e})[0];
 
-        if (peak_viewers[pv_index].data().elems)
+        if (peak_viewers[pv_index].data().elems && peak_viewers[pv_index].data().elems.length < nfactors)
           peak_viewers[pv_index].data().elems.push({'reads': reads.reads, 'name': peak_viewers_names[pv][i]});
         else
           peak_viewers[pv_index].data().elems = [{'reads': reads.reads, 'name': peak_viewers_names[pv][i]}];

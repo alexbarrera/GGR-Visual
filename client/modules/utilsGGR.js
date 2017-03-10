@@ -74,6 +74,13 @@ utilsGGR = (function(){
     return l
   }
 
+  function maskedLog2(reads){
+    return reads.map(function(x){
+      var xlog2 = Math.log2(x);
+      return xlog2<0?0:xlog2;
+    });
+  }
+
   return {
     tpmToJson : function(o){
       return tpmToJson(o);
@@ -92,6 +99,14 @@ utilsGGR = (function(){
     },
     loopWrapper: function(l){
       return loop_wrapper(l)
+    },
+    readsToLog2: function(reads){
+      return reads.map(function(x){
+        return x.map(function(xx){
+          return maskedLog2(xx)
+        })
+      });
     }
+
   }
 })();

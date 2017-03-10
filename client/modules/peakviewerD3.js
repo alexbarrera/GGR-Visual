@@ -38,7 +38,7 @@ PeakviewerD3 = function () {
   function init(c) {
     container = c || container;
     svgWidth = 700;
-    svgHeight = 250;
+    svgHeight = 150;
     margin = {top: 20, right: 140, bottom: 20, left: 70};
     width = svgWidth - margin.left - margin.right;
     height = svgHeight - margin.top - margin.bottom;
@@ -148,7 +148,7 @@ PeakviewerD3 = function () {
       yAxis = d3.svg.axis()
         .scale(y)
         .orient('left')
-        .ticks(7)
+        .ticks(4)
         .tickPadding(5);
 
     axes.selectAll(".x.axis")
@@ -229,15 +229,15 @@ PeakviewerD3 = function () {
       tss_static_vals = [{
         'strand': 'Plus',
         'values': [[width / 2, height],
-          [width / 2, margin.top + 3 * height / 4],
-          [width / 2 + width / 20, margin.top + 3 * height / 4]]
+          [width / 2, margin.top + 2 * height / 4],
+          [width / 2 + width / 20, margin.top + 2 * height / 4]]
       }];
     } else
       tss_static_vals = [{
         'strand': 'Minus',
         'values': [[width / 2, height],
-          [width / 2, margin.top + 3 * height / 4],
-          [width / 2 - width / 20, margin.top + 3 * height / 4]]
+          [width / 2, margin.top + 2 * height / 4],
+          [width / 2 - width / 20, margin.top + 2 * height / 4]]
       }];
 
 
@@ -317,13 +317,13 @@ PeakviewerD3 = function () {
         return x(d[0])
       })
       .attr("y", function() {
-        return margin.top+height*4/5;
+        return margin.top+height*3/5;
       })
       .attr("width", function(d){
         return Math.abs(x(d[1]) - x(d[0]))
       })
       .attr("height", function(){
-        return height-margin.bottom - height*4/5;
+        return height-margin.bottom - height*3/5;
       })
       .attr('clip-path', 'url(#viewer-clip' + container +')');
     exons.exit().remove();
@@ -340,13 +340,13 @@ PeakviewerD3 = function () {
         return x(d[0])
       })
       .attr("y1", function() {
-        return margin.top+height*17/20;
+        return margin.top+height*3.5/5;
       })
       .attr("x2", function (d) {
         return x(d[1])
       })
       .attr("y2", function() {
-        return margin.top+height*17/20;
+        return margin.top+height*3.5/5;
       })
       .attr('clip-path', 'url(#viewer-clip' + container +')');
     introns.exit().remove();
@@ -370,9 +370,10 @@ PeakviewerD3 = function () {
     updateLegend();
     updateTss();
     updateTimeline();
-    svgCanvas.select('.tss').moveToFront();
+    svgCanvas.select('.tss').moveToBack();
     renderIntronsExons(x, y);
-    svgCanvas.selectAll('.exon').moveToFront();
+    svgCanvas.selectAll('.exon').moveToBack();
+    svgCanvas.selectAll('.intron').moveToBack();
     return this;
   }
 
